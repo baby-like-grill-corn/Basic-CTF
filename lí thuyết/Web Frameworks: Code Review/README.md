@@ -101,22 +101,93 @@ Vẽ đường viền bằng dụng cụ
 
 Chúng ta có thể tự động hóa quá trình truy vết. Chế độ truy vết của Semgrep theo dõi một giá trị từ nguồn đã khai báo đến đích đã khai báo và báo cáo đường dẫn, giúp mở rộng quy mô kỹ thuật thủ công trên toàn bộ mã nguồn. CodeQL cũng làm điều tương tự với phân tích liên thủ tục sâu hơn. Chúng ta sẽ sử dụng Semgrep trực tiếp trong nhiệm vụ tiếp theo; khái niệm này hoàn toàn giống với những gì chúng ta vừa làm bằng tay.
 
+<b>GREPPING FOR DANGER</b>
 
+Việc đọc từng tập tin bằng tay không khả thi đối với các ứng dụng quy mô lớn. Giải pháp là phân loại: một bước sàng lọc nhanh chóng, dựa trên mẫu để xác định các ứng viên tiềm năng, sau đó là xem xét thủ công để xác nhận ứng viên nào là thực sự có khả năng bị tấn công. grep và Semgrep là các công cụ phân loại. Cả hai đều không tìm ra lỗi. Chúng chỉ tìm ra những vị trí đáng để xem xét, và sự khác biệt này rất quan trọng vì một lời gọi hàm không phải là lỗ hổng cho đến khi chúng ta xác nhận đầu vào của nó do kẻ tấn công kiểm soát.
 
+Chúng tôi chạy các công cụ này ngay tại nơi mã nguồn được lưu trữ. Đối với phòng này, máy mục tiêu đã được cài đặt sẵn grep, ripgrep, và Semgrep, với mã nguồn Vaultkeeper đang chờ sẵn trong thư mục chính của tài khoản đánh giá, vì vậy bài thực hành trong Nhiệm vụ 7 yêu cầu chúng ta SSH vào và quét mã nguồn ngay tại chỗ. Nếu muốn làm việc trên máy tính của riêng mình, mã nguồn tương tự có thể được tải xuống từ trình xem tại http://10.113.147.204. Đọc mã nguồn trong trình xem, sau đó chạy các công cụ trên máy của mình.SSH.
 
+Tìm kiếm các cuộc gọi nguy hiểm
 
+Hãy bắt đầu với các sink từ nhiệm vụ trước. Một lệnh grep đệ quy duy nhất được giới hạn trong các tệp Python sẽ tìm ra mọi vị trí gọi hàm:
 
+```
+$ grep -rn --include="*.py" -E "os\.system|subprocess|eval\(|exec\(|pickle\.loads|render_template_string|cursor\.execute|send_file|open\(" .
+./app.py:12:    render_template_string,
+./app.py:13:    send_file,
+./app.py:86:    heading = render_template_string("Results for: " + q) if q else ""
+./app.py:93:        cursor.execute(
+./app.py:124:    return send_file(path)
+```
 
+Giải thích về các lá cờ:
 
+    -r, tìm kiếm đệ quy từ thư mục hiện tại
+    -n, in ra số dòng của mỗi kết quả khớp
+    --include="*.py"Chỉ tìm kiếm các tệp Python
+    -E, hãy sử dụng biểu thức chính quy mở rộng |có nghĩa là "hoặc"
 
+Thêm lệnh này -A 3 -B 3để in ba dòng ngữ cảnh ở mỗi bên của kết quả tìm kiếm, thường là đủ để xem liệu đối số có phải là giá trị yêu cầu hay không. Trên một codebase lớn, ripgrep( rg) là một cách nhanh hơn để thực hiện các tìm kiếm này và bỏ qua bất kỳ thứ gì .gitignore theo mặc định, giúp loại bỏ các gói bên thứ ba được cung cấp ra khỏi kết quả của chúng ta.
 
+Tìm kiếm các thông tin bí mật và cấu hình bằng lệnh grep.
 
+Hai lượt quét nữa sẽ cho kết quả ngay lập tức. Lượt quét đầu tiên tìm kiếm các bí mật được mã hóa cứng dựa trên tên biến:
 
+```
+$ grep -rnE "(SECRET|KEY|TOKEN|PASSWORD|API_KEY)\s*=\s*['\"]" --include="*.py" .
+./config.py:6:SECRET_KEY = "vk_s3cr3t_d0_n0t_sh1p_2026"
+````
 
+Các lỗi cấu hình trong lần tìm kiếm thứ hai: chế độ gỡ lỗi vẫn bật, xác thực TLS bị vô hiệu hóa.
 
+```
+$ grep -rnE "DEBUG\s*=\s*True|TESTING\s*=\s*True|verify\s*=\s*False" .
+./config.py:7:DEBUG = True
+```
 
+Một ví dụ hữu ích chỉ dùng một lần là mẫu ID khóa truy cập AWS, có hình dạng cố định mà chúng ta có thể khớp chính xác:
 
+```
+$ grep -rE "AKIA[0-9A-Z]{16}" .
+# no matches: this codebase contains no AWS keys (grep exits non-zero)
+```
+Semgrep để phân loại bệnh nhân dựa trên quy tắc
 
+grep khớp với văn bản. Semgrep khớp với cấu trúc mã, vì vậy nó hiểu rằng một lệnh gọi vẫn là một lệnh gọi bất kể khoảng cách hay tên biến, và nó cung cấp các bộ quy tắc do cộng đồng viết. Hãy cài đặt nó và trỏ nó đến một bộ quy tắc:
+
+```
+$ pip install semgrep        # already installed on the room's machine
+$ semgrep --config p/owasp-top-ten .   # registry ruleset, needs internet: run on a connected box, not the offline VM
+    app.py
+       ❯❱ python.flask.security.injection.tainted-sql-string
+              94┆ f"SELECT title, secret FROM vault WHERE owner_id = {uid} AND title LIKE '%{q}%'"
+       ❯❱ python.flask.security.audit.avoid_app_run_with_bad_host
+             128┆ app.run(host="0.0.0.0", port=5000)
+    ┌─────────────────┐
+    │ 2 Code Findings │
+    └─────────────────┘
+```
+
+Cờ này --config chọn bộ quy tắc. p/owasp-top-tenNó ánh xạ các phát hiện tới OWASP categories `p/python`là một bộ quy tắc Python rộng hơn. Cả hai bộ quy tắc đều được lấy từ kho lưu trữ của Semgrep, vì vậy chúng cần truy cập internet, điều này có nghĩa là lệnh trên chạy trên một máy có kết nối (máy của chúng ta hoặc AttackBox với mã nguồn đã tải xuống), chứ không phải trên máy ảo của phòng. Máy ảo đó được thiết kế để ngoại tuyến: Semgrep đã được cài đặt sẵn và một bộ quy tắc sẵn sàng chạy nằm ở đó /opt/review/semgrep-rules, vì vậy khi chúng ta SSH vào để thực hành, chúng ta sẽ quét ngay lập tức mà không cần kết nối, chính xác như những gì chúng ta làm trong Nhiệm vụ 7. Mỗi phát hiện nêu tên một quy tắc, một tệp, một dòng và mức độ nghiêm trọng. Đọc một phát hiện như một ứng cử viên, giống như cách chúng ta đọc một kết quả tìm kiếm grep: Semgrep đã gắn cờ một mẫu, chúng ta vẫn xác nhận đầu vào là do người dùng kiểm soát.
+
+Một quy tắc tùy chỉnh tối thiểu
+
+Khi chúng ta muốn tìm kiếm một mẫu mà các quy tắc cộng đồng bỏ sót, một quy tắc Semgrep chỉ cần ba trường là đủ hữu ích:
+
+```
+rules:
+  - id: render-template-string-usage
+    pattern: render_template_string(...)
+    message: render_template_string on possible user input, check for SSTI
+    severity: WARNING
+    languages: [python]
+```
+
+patternĐây là dạng mã cần khớp, messagelà nội dung in ra khi tìm thấy kết quả phù hợp, và severitylà cách sắp xếp đầu ra. Chỉ cần như vậy là đủ để điều chỉnh một quy tắc hiện có cho mục tiêu của chúng ta; việc viết các quy tắc phức tạp lại là một kỹ năng riêng. Nếu cần một công cụ hoàn toàn mã nguồn mở, Opengrep là phiên bản LGPL của Semgrep và sử dụng cùng cú pháp quy tắc.
+
+Biết khi nào nên dừng lại
+
+Rủi ro của việc phân loại ban đầu là sự tự tin sai lầm. grep Nó tìm thấy một kết quả cursor.execute, nhưng không biết liệu chuỗi được truyền vào có đến từ người dùng hay từ một hằng số được mã hóa cứng hai dòng phía trên. Hãy xử lý danh sách các kết quả tiềm năng theo thứ tự mức độ ảnh hưởng, xác nhận từng kết quả bằng cách đọc mã xung quanh, và chỉ sau đó mới coi đó là một phát hiện. Sắp xếp danh sách trước khi bắt đầu: một kết quả khớp với render_template_string hoặc cursor.execute đáng được chú ý hơn một kết quả khớp với open( , điều này thường vô hại hơn nhiều. Một danh sách dài các kết quả tìm kiếm bằng grep là một danh sách việc cần làm, không phải là một báo cáo.
 
 
 
