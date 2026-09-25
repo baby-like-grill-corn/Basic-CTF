@@ -267,7 +267,7 @@ prefs = pickle.loads(base64.b64decode(data))
 
 Với mỗi kết quả trong lớp này, hãy tự hỏi hai điều: giá trị đó có do người dùng kiểm soát hay không, và có bất kỳ sự xác thực nào diễn ra trước khi xử lý kết quả hay không? Nếu câu trả lời là "có" rồi "không", thì chúng ta đã tìm ra được kết quả.
 
-
+#jk
 
 
 
