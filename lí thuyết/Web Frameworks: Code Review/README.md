@@ -87,6 +87,7 @@ Chúng ta có thể truy vết theo cả hai cách. Bắt đầu từ điểm cu
 Một giá trị có thể được làm sạch khi vào, lưu trữ, sau đó được truy xuất lại và đưa vào một sink trong một trình xử lý hoàn toàn khác. Đó là kiểu tấn công bậc hai, và nó đánh bại bất kỳ ai chỉ kiểm tra điểm vào. Trường hợp điển hình là tên người dùng được xác thực khi đăng ký, lưu trữ, sau đó được nối vào một truy vấn thô bởi một báo cáo quản trị viên vài tuần sau đó. Tấn công XSS lưu trữ hoạt động theo cách tương tự. Khi chúng ta theo dõi, chúng ta theo dõi dữ liệu vào cơ sở dữ liệu và quay trở lại, chứ không chỉ từ yêu cầu đến hàm đầu tiên chạm vào nó.
 
 <h3>Một ví dụ minh họa</h3>
+
 ```
 @app.route("/greet")
 def greet():
