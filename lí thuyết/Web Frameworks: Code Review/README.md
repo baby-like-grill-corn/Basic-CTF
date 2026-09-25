@@ -2,7 +2,7 @@
 
 Khi mở một kho lưu trữ không quen thuộc, theo bản năng chúng ta sẽ bắt đầu đọc các tệp một cách ngẫu nhiên. Điều đó sẽ lãng phí mười phút đầu tiên, mười phút quý giá và hữu ích nhất mà chúng ta có. Có một trình tự đọc giúp chúng ta từ chỗ không biết gì đến chỗ định hướng trước khi tìm kiếm bất kỳ lỗi nào, và nó hiệu quả vì các danh mục giống nhau trong mọi framework ngay cả khi tên tệp thay đổi.
 
-Thứ tự đọc
+<h2>Thứ tự đọc</h2>
 
 1	README và tài liệu	-> Ứng dụng này làm gì, cách thức hoạt động ra sao, và sử dụng framework nào. <br>
 2	Biểu thức phụ thuộc	-> Thư viện và phiên bản, bề mặt tấn công của bên thứ ba <br>
@@ -101,7 +101,7 @@ Vẽ đường viền bằng dụng cụ
 
 Chúng ta có thể tự động hóa quá trình truy vết. Chế độ truy vết của Semgrep theo dõi một giá trị từ nguồn đã khai báo đến đích đã khai báo và báo cáo đường dẫn, giúp mở rộng quy mô kỹ thuật thủ công trên toàn bộ mã nguồn. CodeQL cũng làm điều tương tự với phân tích liên thủ tục sâu hơn. Chúng ta sẽ sử dụng Semgrep trực tiếp trong nhiệm vụ tiếp theo; khái niệm này hoàn toàn giống với những gì chúng ta vừa làm bằng tay.
 
-<b>GREPPING FOR DANGER</b>
+<h1>GREPPING FOR DANGER</h1>
 
 Việc đọc từng tập tin bằng tay không khả thi đối với các ứng dụng quy mô lớn. Giải pháp là phân loại: một bước sàng lọc nhanh chóng, dựa trên mẫu để xác định các ứng viên tiềm năng, sau đó là xem xét thủ công để xác nhận ứng viên nào là thực sự có khả năng bị tấn công. grep và Semgrep là các công cụ phân loại. Cả hai đều không tìm ra lỗi. Chúng chỉ tìm ra những vị trí đáng để xem xét, và sự khác biệt này rất quan trọng vì một lời gọi hàm không phải là lỗ hổng cho đến khi chúng ta xác nhận đầu vào của nó do kẻ tấn công kiểm soát.
 
