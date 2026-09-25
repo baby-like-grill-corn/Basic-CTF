@@ -183,11 +183,78 @@ rules:
     languages: [python]
 ```
 
-patternĐây là dạng mã cần khớp, messagelà nội dung in ra khi tìm thấy kết quả phù hợp, và severitylà cách sắp xếp đầu ra. Chỉ cần như vậy là đủ để điều chỉnh một quy tắc hiện có cho mục tiêu của chúng ta; việc viết các quy tắc phức tạp lại là một kỹ năng riêng. Nếu cần một công cụ hoàn toàn mã nguồn mở, Opengrep là phiên bản LGPL của Semgrep và sử dụng cùng cú pháp quy tắc.
+```
+pattern: Đây là dạng mã cần khớp, 
+message: là nội dung in ra khi tìm thấy kết quả phù hợp
+severity: là cách sắp xếp đầu ra.
+```
+Chỉ cần như vậy là đủ để điều chỉnh một quy tắc hiện có cho mục tiêu của chúng ta; việc viết các quy tắc phức tạp lại là một kỹ năng riêng. Nếu cần một công cụ hoàn toàn mã nguồn mở, Opengrep là phiên bản LGPL của Semgrep và sử dụng cùng cú pháp quy tắc.
 
 Biết khi nào nên dừng lại
 
 Rủi ro của việc phân loại ban đầu là sự tự tin sai lầm. grep Nó tìm thấy một kết quả cursor.execute, nhưng không biết liệu chuỗi được truyền vào có đến từ người dùng hay từ một hằng số được mã hóa cứng hai dòng phía trên. Hãy xử lý danh sách các kết quả tiềm năng theo thứ tự mức độ ảnh hưởng, xác nhận từng kết quả bằng cách đọc mã xung quanh, và chỉ sau đó mới coi đó là một phát hiện. Sắp xếp danh sách trước khi bắt đầu: một kết quả khớp với render_template_string hoặc cursor.execute đáng được chú ý hơn một kết quả khớp với open( , điều này thường vô hại hơn nhiều. Một danh sách dài các kết quả tìm kiếm bằng grep là một danh sách việc cần làm, không phải là một báo cáo.
+
+<b>INJECTION VULNERABILITIES IN CODE</b>
+
+SQL Tiêm
+
+Lỗi này xảy ra khi xây dựng truy vấn bằng cách dán dữ liệu người dùng nhập vào chuỗi SQL, sử dụng chuỗi ký tự đặc biệt (f-string) hoặc phép nối chuỗi, thay vì sử dụng các ký tự giữ chỗ:
+```
+# Vulnerable: q is formatted straight into the SQL text
+q = request.args.get("q")
+cursor.execute(f"SELECT * FROM items WHERE name = '{q}'")
+```
+Mô hình an toàn truyền các giá trị dưới dạng tham số, do đó trình điều khiển cơ sở dữ liệu giữ cho dữ liệu và mã lệnh được tách biệt:
+```
+# Safe: the ? is a placeholder, q is bound as data
+cursor.execute("SELECT * FROM items WHERE name = ?", (q,))
+```
+Hãy chú ý cả trường hợp bậc hai, trong đó dữ liệu đầu vào được lưu trữ một cách gọn gàng và một truy vấn sau đó đọc lại dữ liệu đó vào một chuỗi f-string. Điểm đích vẫn giống nhau, nguồn là cơ sở dữ liệu.
+
+Tấn công SQL injection hiếm khi chỉ đơn thuần là đọc dữ liệu từ cơ sở dữ liệu. Tùy thuộc vào truy vấn và công cụ tấn công, nó có thể sửa đổi các hàng dữ liệu, bỏ qua bước kiểm tra xác thực hoặc đọc các tập tin cục bộ. Nó cũng có thể ẩn mình bên trong các ORM (Object-Relational Module). OMR Thông thường, SQLAlchemy sẽ tự động xây dựng các truy vấn tham số cho chúng ta, đó là lý do tại sao việc sử dụng chúng mang lại cảm giác an toàn, nhưng ngay khi nhà phát triển sử dụng một phương pháp truy vấn trực tiếp không có cấu trúc rõ ràng, SQLAlchemy sẽ... text()của Django .raw() hoặc .extra()Họ cung cấp cho cơ sở dữ liệu một chuỗi do chính họ tạo ra và mất đi lớp bảo vệ đó, vì vậy sự hiện diện của ORM không đảm bảo rằng truy vấn được tham số hóa. Khi chúng ta tìm thấy một trong những "lối thoát" đó với một chuỗi f bên trong, hãy xử lý nó chính xác như một truy vấn thô. cursor.execute.
+
+Chèn lệnh
+
+Lỗi này đưa dữ liệu do người dùng nhập vào vào chuỗi lệnh mà trình thông dịch lệnh sẽ phân tích:
+
+```
+# Vulnerable: shell=True means the shell parses the whole string
+host = request.args.get("host")
+subprocess.run(f"ping -c 1 {host}", shell=True)
+```
+Một giá trị như `127.0.0.1; cat /etc/passwd` sẽ chạy lệnh thứ hai os.system và os.popenmang cùng một rủi ro. Mẫu an toàn truyền các đối số dưới dạng danh sách và bỏ qua shell, vì vậy đầu vào chỉ có thể là một đối số duy nhất, không bao giờ là cú pháp mới:
+
+```
+# Safe: no shell, host is one argument and cannot add commands
+subprocess.run(["ping", "-c", "1", host])
+```
+
+Công tắc chuyển đổi chính là shell. shell=TrueToàn bộ chuỗi được truyền cho /bin/sh, chương trình này coi `;`, `|`, `&&`, và dấu ngoặc kép ngược là cú pháp để thực hiện. Với một danh sách và không có shell, hệ điều hành sẽ chạy trực tiếp chương trình được đặt tên và mỗi phần tử là một đối số theo nghĩa đen, vì vậy không còn cú pháp nào để kẻ tấn công có thể lén lút đưa vào.
+
+Chèn mẫu phía máy chủ
+
+Lỗi này xảy ra khi hiển thị dữ liệu người dùng nhập vào dưới dạng mẫu thay vì truyền trực tiếp vào mẫu đó. render_template_string Nó biên dịch đối số của mình thành mẫu Jinja2 mỗi lần:
+
+```
+# Vulnerable: the user controls template syntax
+name = request.args.get("name")
+return render_template_string("Hello " + name)
+```
+
+Vì Jinja2 đánh giá các biểu thức bên trong cùng một tiến trình Python xử lý yêu cầu, nên việc chèn mẫu không chỉ giới hạn ở việc in văn bản; nó có thể dẫn đến việc thực thi mã. Mô hình an toàn giữ nguyên mẫu và truyền giá trị dưới dạng dữ liệu:
+
+```
+# Safe: the template is a static file, name is just data
+return render_template("hello.html", name=name)
+```
+
+Bài kiểm tra sơ bộ (smoke test) là {{7*7}}: nếu phản hồi chứa 49, thì đầu vào đã được đánh giá như một mẫu chứ không phải được xuất ra dưới dạng văn bản. Từ đó, ta cần thực thi mã từ xa bằng cách leo lên biểu đồ đối tượng của Python. Mỗi đối tượng đều hiển thị kiểu của nó thông qua __class__, nguồn gốc của nó thông qua __mro__, và đối với một hàm, không gian tên toàn cục của mô-đun đã định nghĩa nó thông qua __globals__. Theo dõi các thuộc tính đó đủ xa, ta sẽ đến một mô-đun như osvà gọi os.popen. Jinja2 giúp việc leo lên dễ dàng hơn bằng cách để lại một vài công cụ hỗ trợ trông có vẻ vô hại trong phạm vi bên trong mỗi mẫu, cycler, lipsum, và requesttrong số đó, bất kỳ công cụ nào cũng có thể đóng vai trò là bậc thang đầu tiên. Chúng ta sẽ đi từng bước một với một trong những công cụ này trong bài tập 7.
+
+
+
+
+
+
 
 
 
