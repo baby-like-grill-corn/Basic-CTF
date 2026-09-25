@@ -276,25 +276,48 @@ Không phải lỗi nào cũng phù hợp với mô hình tấn công từ ngu�
 
 Lỗi này xảy ra khi tạo đường dẫn tệp từ dữ liệu người dùng nhập vào mà không kiểm tra xem kết quả có nằm trong thư mục dự định hay không:
 
-
+```
 # Vulnerable: filename can be ../../etc/passwd
 filename = request.args.get("file")
 return send_file(os.path.join(UPLOAD_DIR, filename))
-os.path.joinNó không bảo vệ chúng ta. Nó chỉ là việc nối chuỗi bằng dấu phân cách, và tệ hơn nữa, nếu filenameđó là đường dẫn tuyệt đối thì nó sẽ loại bỏ UPLOAD_DIRhoàn toàn. ../Chuỗi sẽ đi thẳng ra khỏi thư mục tải lên. Phương pháp an toàn hơn trong Flask là send_from_directory, phương pháp này định tuyến đường dẫn thông qua Werkzeug safe_joinvà trả về lỗi 404 khi đường dẫn được giải quyết thoát khỏi thư mục:
+```
+`os.path.join`Nó không bảo vệ chúng ta. Nó chỉ là việc nối chuỗi bằng dấu phân cách, và tệ hơn nữa, nếu filenameđó là đường dẫn tuyệt đối thì nó sẽ loại bỏ UPLOAD_DIRhoàn toàn. `../`Chuỗi sẽ đi thẳng ra khỏi thư mục tải lên. Phương pháp an toàn hơn trong Flask là send_from_directory, phương pháp này định tuyến đường dẫn thông qua Werkzeug `safe_join`và trả về lỗi 404 khi đường dẫn được giải quyết thoát khỏi thư mục:
 
-
+```
 # Safe: send_from_directory rejects paths that escape the directory
 return send_from_directory(UPLOAD_DIR, filename)
-Bài học cần ghi nhớ trong bất kỳ bài đánh giá nào: send_file(os.path.join(...))hình dạng nguy hiểm nằm ở dữ liệu đầu vào của người dùng, send_from_directoryhình dạng an toàn nằm ở dữ liệu đầu vào. Việc quan sát send_fileđường dẫn người dùng được kết nối là lý do đủ để kiểm tra khả năng duyệt web.
+```
+Bài học cần ghi nhớ trong bất kỳ bài đánh giá nào: `send_file(os.path.join(...))` hình dạng nguy hiểm nằm ở dữ liệu đầu vào của người dùng, send_from_directoryhình dạng an toàn nằm ở dữ liệu đầu vào. Việc quan sát `send_file`đường dẫn người dùng được kết nối là lý do đủ để kiểm tra khả năng duyệt web.
 
-Hậu quả là người dùng ứng dụng có quyền truy cập đọc vào bất kỳ tập tin nào: chính mã nguồn, config.pyvới các thông tin bí mật /etc/passwd, khóa SSH, các tệp tải lên của người dùng khác. Trường hợp đường dẫn tuyệt đối là trường hợp dễ gây ra lỗi, vì os.path.join(UPLOAD_DIR, "/etc/passwd")nó trả về giá trị rỗng /etc/passwd. Một nhà phát triển cẩn thận loại bỏ ../dấu gạch chéo đầu tiên nhưng không bao giờ từ chối nó vẫn có nguy cơ bị tấn công.
+Hậu quả là người dùng ứng dụng có quyền truy cập đọc vào bất kỳ tập tin nào: chính mã nguồn, `config.py`với các thông tin bí mật `/etc/passwd`, khóa SSH, các tệp tải lên của người dùng khác. Trường hợp đường dẫn tuyệt đối là trường hợp dễ gây ra lỗi, vì `os.path.join(UPLOAD_DIR, "/etc/passwd")`nó trả về giá trị rỗng `/etc/passwd`. Một nhà phát triển cẩn thận loại bỏ `../`dấu gạch chéo đầu tiên nhưng không bao giờ từ chối nó vẫn có nguy cơ bị tấn công.
+
+## Lỗi kiểm soát truy cập và IDOR
+
+Lỗi nằm ở một trình xử lý hoạt động trên tài nguyên do máy khách xác định mà không kiểm tra xem máy khách có được phép truy cập vào tài nguyên đó hay không:
+
+```
+# Vulnerable: any logged-in user can read any record by guessing the id
+@app.route("/vault/<int:item_id>")
+@login_required
+def vault(item_id):
+    record = Vault.query.get(item_id)
+    return jsonify(record.data)
+```
+Tuyến đường được xác thực nên cảm giác an toàn, nhưng nó không bao giờ kiểm tra xem nó `item_id`có thuộc về người dùng hiện tại hay không. Thay đổi số trong URL và nó trả về bản ghi của người khác. Đó là một lỗ hổng tham chiếu đối tượng trực tiếp (IDOR) không an toàn. Cách khắc phục là kiểm tra quyền sở hữu: truy vấn bản ghi có ID khớp và chủ sở hữu là người dùng hiện tại, và trả về lỗi 404 nếu không khớp. Hai mẫu liên quan khác cũng thuộc về đây: các tuyến đường cần được bảo vệ nhưng `@login_required`hoàn toàn thiếu decorator của chúng, và các kiểm tra vai trò tin tưởng vào giá trị do máy khách cung cấp, chẳng hạn như trường cookie hoặc tham số biểu mẫu.
+
+Tóm lại, lỗ hổng này rất dễ phát hiện. Hãy tìm câu lệnh tra cứu cơ sở dữ liệu, sau đó đọc `WHERE`mệnh đề hoặc bộ lọc của nó. Nếu nó chỉ dựa vào ID được cung cấp mà không có `owner_id = current_user`điều kiện kiểu nào, thì đó là một lỗ hổng IDOR. ID số nguyên tuần tự khiến việc khai thác trở nên dễ dàng: duyệt qua từng bản ghi `/vault/1`và `/vault/2`đọc `/vault/3`từng bản ghi một.
 
 
+## Bí mật được mã hóa cứng
+Lỗi này là một bí mật được ghi dưới dạng chuỗi ký tự trong một tệp tin nằm trong hệ thống quản lý phiên bản:
 
+```
+# Vulnerable: the signing key is in the source, not the environment
+SECRET_KEY = "fl4sk_s3cr3t_d0_n0t_sh1p_2026"
+```
+Khóa `SECRET_KEYAPI`, mật khẩu cơ sở dữ liệu hoặc mã thông báo trong mã nguồn sẽ bị lộ ngay khi bất kỳ ai đọc kho lưu trữ, và Git vẫn lưu giữ chúng trong lịch sử ngay cả sau khi một commit sau đó xóa chúng đi. Nơi lưu trữ đúng là biến môi trường hoặc trình quản lý bí mật, được tải trong quá trình chạy. Hãy chú ý đến lỗi liên quan đến một `.env`tệp chứa bí mật thực sự nhưng chưa bao giờ được thêm vào `.gitignore`, vì vậy nó được gửi kèm theo mã. Lệnh grep từ Nhiệm vụ 4 tìm thấy cả hai.
 
-
-
-
+Đối với Flask `SECRET_KEY`, rủi ro rất rõ ràng: bất kỳ ai đọc được mã nguồn đều có thể giả mạo cookie phiên đã ký và xác thực với tư cách người dùng bất kỳ, tương tự như các framework web khác như Python . Vì các bí mật vẫn tồn tại trong lịch sử Git, một giá trị đã được commit một lần và bị xóa sau đó vẫn có thể khôi phục được, đó là lý do tại sao các công cụ như `gitleaks`và `trufflehog`quét toàn bộ lịch sử chứ không chỉ bản checkout hiện tại.
 
 
 
