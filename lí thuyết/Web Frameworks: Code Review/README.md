@@ -43,7 +43,7 @@ Lập bản đồ nguồn Vaultkeeper
 
 Mở mã nguồn của ứng dụng mục tiêu, một công cụ Flask nhỏ có tên là Vaultkeeper. Chúng ta có thể đọc nó theo hai cách: trong trình xem trên trình duyệt tại http://10.113.147.204, hiển thị từng tệp bên cạnh ứng dụng đang chạy, hoặc qua SSH trên chính máy đó, nơi mã nguồn nằm trong ~/vaultkeeper. Áp dụng thứ tự đọc: mở tệp manifest, sau đó config.py, rồi tìm mọi @app.routevà ghi lại danh sách. Khi hoàn thành bước 4, chúng ta sẽ có một bản đồ một trang của ứng dụng, và chúng ta chưa chạy nó lần nào.
 
-<b> SOURCE-TO-SINK ANALYSIS </b>
+<h1> SOURCE-TO-SINK ANALYSIS </h1>
 
 Hầu hết các lỗi trong ứng dụng web đều có cùng một dạng: dữ liệu do người dùng kiểm soát được truyền đến một thao tác mà kẻ tấn công không bao giờ được phép nhập vào. Kiểm thử hộp trắng biến dạng đó thành một quy trình. Tìm xem dữ liệu đi vào từ đâu, tìm xem nó đến đâu, và quyết định xem có điều gì an toàn xảy ra ở giữa hay không. Chúng ta gọi điểm vào là nguồn , điểm đến nguy hiểm là đích , và đường đi giữa chúng là luồng dữ liệu.
 
@@ -194,7 +194,7 @@ Biết khi nào nên dừng lại
 
 Rủi ro của việc phân loại ban đầu là sự tự tin sai lầm. grep Nó tìm thấy một kết quả cursor.execute, nhưng không biết liệu chuỗi được truyền vào có đến từ người dùng hay từ một hằng số được mã hóa cứng hai dòng phía trên. Hãy xử lý danh sách các kết quả tiềm năng theo thứ tự mức độ ảnh hưởng, xác nhận từng kết quả bằng cách đọc mã xung quanh, và chỉ sau đó mới coi đó là một phát hiện. Sắp xếp danh sách trước khi bắt đầu: một kết quả khớp với render_template_string hoặc cursor.execute đáng được chú ý hơn một kết quả khớp với open( , điều này thường vô hại hơn nhiều. Một danh sách dài các kết quả tìm kiếm bằng grep là một danh sách việc cần làm, không phải là một báo cáo.
 
-<b>INJECTION VULNERABILITIES IN CODE</b>
+<h1>INJECTION VULNERABILITIES IN CODE</h1>
 
 SQL Tiêm
 
