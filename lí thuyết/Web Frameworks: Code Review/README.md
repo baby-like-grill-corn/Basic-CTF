@@ -1,14 +1,16 @@
+<p style="fontsize: 20 px"> ORIENTING IN A CODEBASE </p>
+
 Khi mở một kho lưu trữ không quen thuộc, theo bản năng chúng ta sẽ bắt đầu đọc các tệp một cách ngẫu nhiên. Điều đó sẽ lãng phí mười phút đầu tiên, mười phút quý giá và hữu ích nhất mà chúng ta có. Có một trình tự đọc giúp chúng ta từ chỗ không biết gì đến chỗ định hướng trước khi tìm kiếm bất kỳ lỗi nào, và nó hiệu quả vì các danh mục giống nhau trong mọi framework ngay cả khi tên tệp thay đổi.
 
 Thứ tự đọc
 
-1	README và tài liệu	-> Ứng dụng này làm gì, cách thức hoạt động ra sao, và sử dụng framework nào.
-2	Biểu thức phụ thuộc	-> Thư viện và phiên bản, bề mặt tấn công của bên thứ ba
-3	Tệp cấu hình	-> Cờ gỡ lỗi, thông tin bí mật, chuỗi cơ sở dữ liệu
-4	Định tuyến / điểm vào	-> Danh sách đầy đủ các phương thức xâm nhập, bản đồ bề mặt tấn công của chúng tôi
-5	middleware và decorator xác thực	-> Những tuyến đường nào được bảo vệ, những tuyến đường nào không.
+1	README và tài liệu	-> Ứng dụng này làm gì, cách thức hoạt động ra sao, và sử dụng framework nào. <br>
+2	Biểu thức phụ thuộc	-> Thư viện và phiên bản, bề mặt tấn công của bên thứ ba <br>
+3	Tệp cấu hình	-> Cờ gỡ lỗi, thông tin bí mật, chuỗi cơ sở dữ liệu <br>
+4	Định tuyến / điểm vào	-> Danh sách đầy đủ các phương thức xâm nhập, bản đồ bề mặt tấn công của chúng tôi <br>
+5	middleware và decorator xác thực	-> Những tuyến đường nào được bảo vệ, những tuyến đường nào không. <br>
 6	Lớp cơ sở dữ liệu / mô hình-> Dữ liệu được lưu trữ ở đâu và cách thức xây dựng các truy vấn
-Các xử lý viên tuyến đường cá nhân	-> Lý do đằng sau mỗi điểm truy cập
+Các xử lý viên tuyến đường cá nhân	-> Lý do đằng sau mỗi điểm truy cập <br>
 
 Các bản khai phụ thuộc
 
@@ -16,7 +18,7 @@ Tệp kê khai liệt kê mọi thư viện bên thứ ba và, nếu may mắn, 
 
 Cấu hình đầu tiên
 
-Các tệp cấu hình là nơi các nhà phát triển thường mắc lỗi trước khi bất kỳ yêu cầu nào được xử lý. Chúng ta đang tìm kiếm các cờ gỡ lỗi vẫn được bật ( DEBUG = True), khóa bí mật được viết dưới dạng chuỗi ký tự, chuỗi kết nối cơ sở dữ liệu có mật khẩu được nhúng và các kiểm tra bảo mật bị vô hiệu hóa. Trong một dự án Flask, nơi thường chứa những thứ này là config.py. Hãy đọc nó sớm, vì một DEBUG = Truelỗi ở đây sẽ thay đổi cách hoạt động của mọi lỗi sau này. Chuỗi kết nối cơ sở dữ liệu là một phần thưởng thường xuyên, vì nó thường chứa tên người dùng và mật khẩu, và một chuỗi kết nối đã được cam kết là một thông tin xác thực hoạt động, chứ không chỉ là một gợi ý.
+Các tệp cấu hình là nơi các nhà phát triển thường mắc lỗi trước khi bất kỳ yêu cầu nào được xử lý. Chúng ta đang tìm kiếm các cờ gỡ lỗi vẫn được bật ( DEBUG = True), khóa bí mật được viết dưới dạng chuỗi ký tự, chuỗi kết nối cơ sở dữ liệu có mật khẩu được nhúng và các kiểm tra bảo mật bị vô hiệu hóa. Trong một dự án Flask, nơi thường chứa những thứ này là config.py. Hãy đọc nó sớm, vì một DEBUG = Truelỗi ở đây sẽ thay đổi cách hoạt động của mọi lỗi sau này. Chuỗi kết nối cơ sở dữ liệu là một phần thưởng thường xuyên, vì nó thường chứa tên người dùng và mật khẩu, và một chuỗi kết nối đã được cam kết là một thông tin xác thực hoạt động, chứ không chỉ là một gợi ý. <br>
 DEBUG = True là một cách để kích hoạt chế độ debug (kiểm tra lỗi) trong một chương trình, thường được sử dụng trong lập trình. Khi biến DEBUG được đặt thành True, các thông báo debug (như log, thông báo lỗi, hoặc các câu lệnh in ra thông tin chi tiết) sẽ được hiển thị, giúp người lập trình dễ dàng theo dõi và phát hiện lỗi trong quá trình chạy chương trình.
 
 Định tuyến chính là bản đồ bề mặt tấn công.
@@ -40,6 +42,8 @@ Chúng ta sẽ gặp những framework mà mình chưa từng sử dụng. Cách
 Lập bản đồ nguồn Vaultkeeper
 
 Mở mã nguồn của ứng dụng mục tiêu, một công cụ Flask nhỏ có tên là Vaultkeeper. Chúng ta có thể đọc nó theo hai cách: trong trình xem trên trình duyệt tại http://10.113.147.204, hiển thị từng tệp bên cạnh ứng dụng đang chạy, hoặc qua SSH trên chính máy đó, nơi mã nguồn nằm trong ~/vaultkeeper. Áp dụng thứ tự đọc: mở tệp manifest, sau đó config.py, rồi tìm mọi @app.routevà ghi lại danh sách. Khi hoàn thành bước 4, chúng ta sẽ có một bản đồ một trang của ứng dụng, và chúng ta chưa chạy nó lần nào.
+
+SOURCE-TO-SINK ANALYSIS
 
 
 
