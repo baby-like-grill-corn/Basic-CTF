@@ -43,7 +43,76 @@ Lập bản đồ nguồn Vaultkeeper
 
 Mở mã nguồn của ứng dụng mục tiêu, một công cụ Flask nhỏ có tên là Vaultkeeper. Chúng ta có thể đọc nó theo hai cách: trong trình xem trên trình duyệt tại http://10.113.147.204, hiển thị từng tệp bên cạnh ứng dụng đang chạy, hoặc qua SSH trên chính máy đó, nơi mã nguồn nằm trong ~/vaultkeeper. Áp dụng thứ tự đọc: mở tệp manifest, sau đó config.py, rồi tìm mọi @app.routevà ghi lại danh sách. Khi hoàn thành bước 4, chúng ta sẽ có một bản đồ một trang của ứng dụng, và chúng ta chưa chạy nó lần nào.
 
-SOURCE-TO-SINK ANALYSIS
+<b> SOURCE-TO-SINK ANALYSIS </b>
+
+Hầu hết các lỗi trong ứng dụng web đều có cùng một dạng: dữ liệu do người dùng kiểm soát được truyền đến một thao tác mà kẻ tấn công không bao giờ được phép nhập vào. Kiểm thử hộp trắng biến dạng đó thành một quy trình. Tìm xem dữ liệu đi vào từ đâu, tìm xem nó đến đâu, và quyết định xem có điều gì an toàn xảy ra ở giữa hay không. Chúng ta gọi điểm vào là nguồn , điểm đến nguy hiểm là đích , và đường đi giữa chúng là luồng dữ liệu.
+
+Nguồn
+
+Nguồn dữ liệu là bất kỳ nơi nào dữ liệu do người dùng kiểm soát được đưa vào ứng dụng. Trong Flask, các nguồn dữ liệu phổ biến đều gắn liền với requestđối tượng:
+
+```
+request.args        # query string parameters
+request.form        # POST form fields
+request.json        # JSON request body
+request.cookies     # cookie values
+request.headers     # request headers
+request.files       # uploaded files
+```
+
+Bồn rửa
+
+"Sink" là bất kỳ thao tác nào trở nên nguy hiểm khi nhận được đầu vào từ kẻ tấn công. Các "sink" tiêu biểu bao gồm:
+
+    Xây dựng truy vấn SQL ( cursor.execute)
+    Thực thi lệnh shell ( os.system, subprocess với shell=True)
+    Hiển thị mẫu ( render_template_string)
+    Giải mã hóa ( pickle.loads, yaml.load)
+    Xây dựng đường dẫn tệp ( open, send_file)
+    Đánh giá tùy ý ( eval, exec)
+
+Một cái bồn rửa đứng riêng lẻ không phải là lỗi. Cái bồn rửa được kết nối với một nguồn khác, mà không có bước trung gian an toàn nào giữa chúng, mới là lỗi. 
+
+
+Con đường giữa
+
+Giữa nguồn và đích có thể có quá trình làm sạch, xác thực hoặc ép kiểu để vô hiệu hóa dữ liệu đầu vào, hoặc cũng có thể không có gì cả. Nhiệm vụ của người kiểm thử là đọc đường dẫn đó và quyết định. Việc ép int() kiểu ID trước khi thực thi truy vấn sẽ ngăn chặn tấn công SQL injection. Biểu thức chính quy (regex) từ chối truy vấn ../ trước khi mở đường dẫn sẽ ngăn chặn việc duyệt thư mục trái phép. Hãy đọc đường dẫn; đừng giả định rằng nó tồn tại.
+
+Vẽ theo hai hướng
+
+Chúng ta có thể truy vết theo cả hai cách. Bắt đầu từ điểm cuối và làm việc ngược lại sẽ hiệu quả khi các điểm cuối hiếm: tìm điểm cuối cursor.executexây dựng truy vấn của nó bằng chuỗi f, sau đó quay lại để xác nhận giá trị do người dùng điều khiển. Bắt đầu từ nguồn và theo dõi nó về phía trước phù hợp với trình xử lý mà chúng ta đang đọc từ trên xuống dưới. Cả hai cách đều dẫn đến cùng một câu trả lời, đó là liệu có một đường dẫn sạch từ đầu vào đến điểm nguy hiểm hay không.
+
+Vì sao việc khử trùng tại nguồn là chưa đủ
+
+Một giá trị có thể được làm sạch khi vào, lưu trữ, sau đó được truy xuất lại và đưa vào một sink trong một trình xử lý hoàn toàn khác. Đó là kiểu tấn công bậc hai, và nó đánh bại bất kỳ ai chỉ kiểm tra điểm vào. Trường hợp điển hình là tên người dùng được xác thực khi đăng ký, lưu trữ, sau đó được nối vào một truy vấn thô bởi một báo cáo quản trị viên vài tuần sau đó. Tấn công XSS lưu trữ hoạt động theo cách tương tự. Khi chúng ta theo dõi, chúng ta theo dõi dữ liệu vào cơ sở dữ liệu và quay trở lại, chứ không chỉ từ yêu cầu đến hàm đầu tiên chạm vào nó.
+
+Một ví dụ minh họa
+```
+@app.route("/greet")
+def greet():
+    name = request.args.get("name")
+    return render_template_string(f"Hello {name}")
+```
+Nguồn: request.args.get("name"). Đích: render_template_string, biên dịch đối số của nó thành một mẫu Jinja2. Đường dẫn giữa chúng là một chuỗi f-string được chèn nametrực tiếp vào văn bản mẫu mà không có bất kỳ sự kiểm tra nào. Người dùng kiểm soát cú pháp mẫu, đó là chèn mẫu phía máy chủ (SSTI). So sánh với phiên bản an toàn, trong đó giá trị được truyền dưới dạng dữ liệu vào một mẫu cố định và không bao giờ trở thành mã mẫu:
+
+`return render_template("greet.html", name=name)`
+
+Vẽ đường viền bằng dụng cụ
+
+Chúng ta có thể tự động hóa quá trình truy vết. Chế độ truy vết của Semgrep theo dõi một giá trị từ nguồn đã khai báo đến đích đã khai báo và báo cáo đường dẫn, giúp mở rộng quy mô kỹ thuật thủ công trên toàn bộ mã nguồn. CodeQL cũng làm điều tương tự với phân tích liên thủ tục sâu hơn. Chúng ta sẽ sử dụng Semgrep trực tiếp trong nhiệm vụ tiếp theo; khái niệm này hoàn toàn giống với những gì chúng ta vừa làm bằng tay.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
