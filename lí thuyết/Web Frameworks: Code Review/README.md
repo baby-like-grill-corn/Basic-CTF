@@ -250,6 +250,31 @@ return render_template("hello.html", name=name)
 
 Bài kiểm tra sơ bộ (smoke test) là {{7*7}}: nếu phản hồi chứa 49, thì đầu vào đã được đánh giá như một mẫu chứ không phải được xuất ra dưới dạng văn bản. Từ đó, ta cần thực thi mã từ xa bằng cách leo lên biểu đồ đối tượng của Python. Mỗi đối tượng đều hiển thị kiểu của nó thông qua __class__, nguồn gốc của nó thông qua __mro__, và đối với một hàm, không gian tên toàn cục của mô-đun đã định nghĩa nó thông qua __globals__. Theo dõi các thuộc tính đó đủ xa, ta sẽ đến một mô-đun như osvà gọi os.popen. Jinja2 giúp việc leo lên dễ dàng hơn bằng cách để lại một vài công cụ hỗ trợ trông có vẻ vô hại trong phạm vi bên trong mỗi mẫu, cycler, lipsum, và requesttrong số đó, bất kỳ công cụ nào cũng có thể đóng vai trò là bậc thang đầu tiên. Chúng ta sẽ đi từng bước một với một trong những công cụ này trong bài tập 7.
 
+Giải mã dữ liệu không an toàn
+
+Lỗi này xảy ra khi giải mã các byte do kẻ tấn công điều khiển bằng một bộ giải mã có thể tạo ra các đối tượng tùy ý. `pickle` là thủ phạm tồi tệ nhất, bởi vì việc giải mã có thể thực thi mã:
+
+```
+# Vulnerable: a crafted pickle runs code on load
+data = request.cookies.get("prefs")
+prefs = pickle.loads(base64.b64decode(data))
+```
+
+`yaml.load` Nếu không có trình tải an toàn thì cũng gặp vấn đề tương tự. Các biện pháp khắc phục là sử dụng định dạng chỉ chứa dữ liệu như JSON, hoặc buộc sử dụng trình tải an toàn ( `yaml.safe_load` hoặc `yaml.load(data, Loader=yaml.SafeLoader))`. Một khi kẻ tấn công kiểm soát được những gì được giải mã, chúng thường kiểm soát được những gì được thực thi. Cơ chế là pickle có thể được yêu cầu gọi bất kỳ đối tượng nào trong quá trình tải (thông qua `__reduce__`), do đó một luồng byte được tạo ra sẽ trở thành mã thực thi, chứ không chỉ là một từ điển được xây dựng lại. Không có cách nào an toàn để giải mã dữ liệu mà chúng ta không tin tưởng, vì vậy giải pháp thực sự là không bao giờ sử dụng pickle làm phương tiện truyền tải dữ liệu đầu vào của người dùng.
+
+Câu hỏi cần đặt ra
+
+Với mỗi kết quả trong lớp này, hãy tự hỏi hai điều: giá trị đó có do người dùng kiểm soát hay không, và có bất kỳ sự xác thực nào diễn ra trước khi xử lý kết quả hay không? Nếu câu trả lời là "có" rồi "không", thì chúng ta đã tìm ra được kết quả.
+
+
+
+
+
+
+
+
+
+
 
 
 
