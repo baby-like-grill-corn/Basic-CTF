@@ -267,13 +267,27 @@ prefs = pickle.loads(base64.b64decode(data))
 
 Với mỗi kết quả trong lớp này, hãy tự hỏi hai điều: giá trị đó có do người dùng kiểm soát hay không, và có bất kỳ sự xác thực nào diễn ra trước khi xử lý kết quả hay không? Nếu câu trả lời là "có" rồi "không", thì chúng ta đã tìm ra được kết quả.
 
-#jk
+<h1>ACCESS CONTROL, PATH, AND SECRET FLAWS IN CODE</h1>
 
 
+Không phải lỗi nào cũng phù hợp với mô hình tấn công từ nguồn đến đích. Ba trong số những phát hiện phổ biến nhất trong quá trình xem xét mã thực tế đến từ việc thiếu kiểm tra quyền truy cập, xử lý đường dẫn tệp không an toàn và các thông tin bí mật còn sót lại trong cây mã nguồn. Đây thường là những lỗi dễ khắc phục nhất, bởi vì việc phát hiện ra chúng chỉ đơn giản là nhận thấy những gì còn thiếu chứ không phải là theo dõi luồng dữ liệu. Đây là phần thứ hai của thư viện tham khảo của chúng tôi.
+
+<h2>Duyệt đường đi</h2>
+
+Lỗi này xảy ra khi tạo đường dẫn tệp từ dữ liệu người dùng nhập vào mà không kiểm tra xem kết quả có nằm trong thư mục dự định hay không:
 
 
+# Vulnerable: filename can be ../../etc/passwd
+filename = request.args.get("file")
+return send_file(os.path.join(UPLOAD_DIR, filename))
+os.path.joinNó không bảo vệ chúng ta. Nó chỉ là việc nối chuỗi bằng dấu phân cách, và tệ hơn nữa, nếu filenameđó là đường dẫn tuyệt đối thì nó sẽ loại bỏ UPLOAD_DIRhoàn toàn. ../Chuỗi sẽ đi thẳng ra khỏi thư mục tải lên. Phương pháp an toàn hơn trong Flask là send_from_directory, phương pháp này định tuyến đường dẫn thông qua Werkzeug safe_joinvà trả về lỗi 404 khi đường dẫn được giải quyết thoát khỏi thư mục:
 
 
+# Safe: send_from_directory rejects paths that escape the directory
+return send_from_directory(UPLOAD_DIR, filename)
+Bài học cần ghi nhớ trong bất kỳ bài đánh giá nào: send_file(os.path.join(...))hình dạng nguy hiểm nằm ở dữ liệu đầu vào của người dùng, send_from_directoryhình dạng an toàn nằm ở dữ liệu đầu vào. Việc quan sát send_fileđường dẫn người dùng được kết nối là lý do đủ để kiểm tra khả năng duyệt web.
+
+Hậu quả là người dùng ứng dụng có quyền truy cập đọc vào bất kỳ tập tin nào: chính mã nguồn, config.pyvới các thông tin bí mật /etc/passwd, khóa SSH, các tệp tải lên của người dùng khác. Trường hợp đường dẫn tuyệt đối là trường hợp dễ gây ra lỗi, vì os.path.join(UPLOAD_DIR, "/etc/passwd")nó trả về giá trị rỗng /etc/passwd. Một nhà phát triển cẩn thận loại bỏ ../dấu gạch chéo đầu tiên nhưng không bao giờ từ chối nó vẫn có nguy cơ bị tấn công.
 
 
 
