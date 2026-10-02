@@ -11,19 +11,25 @@ Actuator là hệ thống con quản lý được tích hợp sẵn trong thư v
 
 ## Nhận diện nó ngay trong nguồn gốc
 
-Mở `application.properties` trong trình xem ảnh. Dòng quan trọng là:
+Hãy tưởng tượng ứng dụng của bạn là một tòa nhà. `Actuator` giống như một "phòng kỹ thuật trung tâm" hiển thị toàn bộ sơ đồ điện nước, nhiệt độ, và camera an ninh của tòa nhà đó. Nó sinh ra để giúp người quản lý (developer) theo dõi tòa nhà hoạt động tốt không.Mặc định phòng này bị khóa.
+
+Mở `application.properties` trong trình xem ảnh. Nếu thấy dòng quan trọng là:
 
 `management.endpoints.web.exposure.include=*`
+
+Nó tương đương với việc mở toang cửa phòng kỹ thuật cho bất kỳ ai đi qua cũng vào xem được 
 
 Ký tự `*` đại diện cho phép truy cập mọi điểm cuối Actuator trên cổng riêng của ứng dụng. Các nhóm đã thiết lập chính xác điều này để giám sát hoặc vì họ đã sao chép nó từ một câu trả lời trên diễn đàn. Bên dưới đó, một thuộc tính tùy chỉnh chứa một giá trị mà mã nguồn để trống:
 
 `app.actuatorflag=<REDACTED>`
 
-Hai thông tin từ một tệp: giao diện quản lý hoàn toàn mở, và có một thuộc tính tùy chỉnh đáng đọc từ ứng dụng đang chạy. `/env` Điểm cuối của Actuator che giấu các khóa khớp với danh sách khóa nhạy cảm của nó ( `password`, `secret`, `key`, `token`, `credentials`). Một khóa như `app.actuatorflag`không khớp với bất kỳ khóa nào trong số đó, vì vậy nó được hiển thị dưới dạng văn bản thuần.
+Hai thông tin từ một tệp: giao diện quản lý hoàn toàn mở, và có một thuộc tính tùy chỉnh đáng đọc từ ứng dụng đang chạy. `/env` Điểm cuối của Actuator che giấu các khóa khớp với danh sách khóa nhạy cảm của nó ( `password`, `secret`, `key`, `token`, `credentials`). Một khóa như `app.actuatorflag` không khớp với bất kỳ khóa nào trong số đó, vì vậy nó được hiển thị dưới dạng văn bản thuần.
+
+Bình thường, Actuator sẽ tự động giấu (che mờ bằng dấu *) các từ nhạy cảm như password, secret, token. Tuy nhiên, nếu lập trình viên tự tạo ra một cái tên lạ tai (ví dụ: app.actuatorflag), Actuator sẽ không nhận diện được đây là đồ nhạy cảm và hiển thị lộ thiên 100% bằng chữ thường (văn bản thuần). Hacker chỉ cần gõ đường dẫn là đọc được mật mã.
 
 ## Khai thác ứng dụng Live
 
-Trước tiên hãy liệt kê những gì được hiển thị, sau đó đọc trực tiếp thuộc tính từ `/actuator/env`:
+Trước tiên hãy liệt kê những gì được hiển thị, sau đó đọc trực tiếp thuộc tính từ `/actuator/env` (Đường dẫn này hiển thị các "biến môi trường" (thông tin cấu hình hệ thống):
 
 `root@TryHackMe:~# curl -s http://MACHINE_IP:8080/actuator | jq '._links | keys'`
 
@@ -41,6 +47,10 @@ root@TryHackMe:~# curl -s http://MACHINE_IP:8080/actuator/env/app.actuatorflag |
 ```
 
 Giá trị được hiển thị đầy đủ vì khóa của nó không nằm trong danh sách nhạy cảm của Actuator. Cùng một giao diện đó cung cấp cho chúng ta một tùy chọn thứ hai, mạnh mẽ hơn: `/actuator/heapdump`tải xuống ảnh chụp nhanh nhị phân của toàn bộ vùng nhớ heap của JVM, và `strings`dựa trên đó tìm kiếm bất kỳ thông tin xác thực nào mà ứng dụng đang lưu giữ trong bộ nhớ. Đối với một thuộc tính được đặt tên duy nhất, `/env`đây là công cụ chính xác; để tìm kiếm mật khẩu cơ sở dữ liệu và khóa API không bao giờ xuất hiện trong cấu hình, việc sao lưu vùng nhớ heap là công cụ tìm thấy mọi thứ.
+
+Heapdump là gì? "Heap dump" giống như một ảnh chụp X-quang toàn bộ não bộ của ứng dụng tại một thời điểm. Bất kỳ thứ gì ứng dụng đang xử lý, đang nhớ (user đăng nhập, mật khẩu database, thẻ tín dụng đang thanh toán...) đều nằm trong vùng nhớ này.
+
+Cách hacker lấy: Hacker tải file heapdump này về (một file đuôi .hprof). Sau đó dùng các câu lệnh lọc chữ (strings và grep) hoặc công cụ chuyên dụng để "lục lọi" trong file đó. Dù lập trình viên có giấu mật khẩu kỹ cỡ nào trong file cấu hình, thì khi ứng dụng chạy, nó vẫn phải nạp vào bộ nhớ, và hacker sẽ tìm ra được hết.
 
 ```
 root@TryHackMe:~# curl -s http://MACHINE_IP:8080/actuator/heapdump -o heap.hprof
