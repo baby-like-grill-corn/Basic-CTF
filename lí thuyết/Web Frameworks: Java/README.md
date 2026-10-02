@@ -101,7 +101,9 @@ Cùng một cái bẫy tồn tại ở mọi lớp truy cập dữ liệu của 
 
 Tóm lại rất đơn giản: ORM hay thư viện khác `JdbcTemplate`không phải là bằng chứng về tính an toàn. Ngay khi chúng ta thấy một chuỗi SQL được xây dựng từ dữ liệu đầu vào chứ không phải từ các tham số, điểm cuối đó đã dễ bị tấn công.
 
+JdbcTemplate là một công cụ mạnh mẽ được tích hợp sẵn trong cấu trúc Spring Framework (Java) nhằm giúp lập trình viên tương tác với Cơ sở dữ liệu (Database) một cách dễ dàng và gọn gàng hơn.
 
+# Phân bổ khối lượng và liên kết mô hình
 
 
 
