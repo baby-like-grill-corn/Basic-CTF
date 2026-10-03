@@ -175,6 +175,8 @@ public void initBinder(WebDataBinder binder) { binder.setAllowedFields("email");
 ```
 Điều này báo cho Spring chỉ điền dữ liệu `email`và âm thầm loại bỏ bất kỳ tham số yêu cầu nào khác. Việc liên kết trực tiếp các kiểu thực thể từ yêu cầu là nguyên nhân gốc rễ, và việc xem xét mã sẽ chỉ ra mọi `@ModelAttribute SomeEntity`trường hợp thiếu một trong những điều kiện kiểm tra này. Rủi ro tương tự cũng áp dụng cho `@RequestBodytrên` một JSON điểm cuối (endpoint) giải mã dữ liệu thành một thực thể, vì vậy quy tắc được khái quát hóa: hãy liên kết một kiểu dữ liệu đầu vào được thiết kế riêng, chứ không phải kiểu dữ liệu persistence model của bạn.
 
+# Chuyển đổi mã hóa Java thành mã thực thi từ xa (RCE).
+
 
 
 
