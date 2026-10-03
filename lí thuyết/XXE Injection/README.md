@@ -1,8 +1,8 @@
-Là gì XML?
+# Là gì XML?
 
 XML (Extensible Markup Language) là một ngôn ngữ đánh dấu được phát triển từ SGML (Standard Generalized Markup Language), cùng một tiêu chuẩn mà HTML dựa trên đó. XML thường được các ứng dụng sử dụng để lưu trữ và truyền tải dữ liệu ở định dạng vừa dễ đọc đối với con người vừa dễ phân tích đối với máy tính. Đây là một định dạng linh hoạt và được sử dụng rộng rãi để trao đổi dữ liệu giữa các hệ thống và ứng dụng khác nhau. XML bao gồm các phần tử, thuộc tính và dữ liệu ký tự, được sử dụng để biểu diễn dữ liệu một cách có cấu trúc và có tổ chức.
 
-Cú pháp và cấu trúc XML
+# Cú pháp và cấu trúc XML
 Các phần tử XML được biểu diễn bằng thẻ, được bao quanh bởi dấu ngoặc nhọn (<>). Thẻ thường đi theo cặp, với thẻ mở đứng trước nội dung và thẻ đóng đứng sau nội dung. Ví dụ:
 
 ```
@@ -20,11 +20,11 @@ Thẻ này `<name>John</name>` đại diện cho một phần tử có tên là 
 
 Ví dụ trên cho thấy một tài liệu XML đơn giản với các phần tử, thuộc tính và dữ liệu ký tự. `<?xml version="1.0" encoding="UTF-8"?>` Khai báo thẻ cho biết phiên bản XML, và phần tử chứa nhiều phần tử con và thuộc tính khác nhau đại diện cho dữ liệu người dùng.
 
-Các trường hợp sử dụng phổ biến trong ứng dụng web
+# Các trường hợp sử dụng phổ biến trong ứng dụng web
 
 XML được sử dụng rộng rãi trong các ứng dụng web để trao đổi, lưu trữ và cấu hình dữ liệu. Nó thường được sử dụng cho các dịch vụ web và API, chẳng hạn như SOAP và REST, để trao đổi dữ liệu giữa các hệ thống. XML cũng được sử dụng cho các tệp cấu hình, chẳng hạn như cấu hình máy chủ web hoặc cài đặt ứng dụng.
 
-XSLT là gì?
+# XSLT là gì?
 
 XSLT (Extensible Stylesheet Language Transformations) là một ngôn ngữ được sử dụng để chuyển đổi và định dạng các tài liệu XML. Mặc dù XSLT chủ yếu được sử dụng để chuyển đổi và định dạng dữ liệu, nó cũng có liên quan đáng kể đến các cuộc tấn công XXE (XML External Entities).
 
@@ -38,11 +38,11 @@ Thao tác dữ liệu : XSLT có thể thao tác dữ liệu trong tài liệu X
 
 Tấn công XXE mù : XSLT có thể được sử dụng để thực hiện các cuộc tấn công XXE mù, trong đó kẻ tấn công chèn các thực thể độc hại mà không nhìn thấy phản hồi của máy chủ.
 
-DTD là gì?
+# DTD là gì?
 
 DTD (Document Type Definitions) định nghĩa cấu trúc và các ràng buộc của một tài liệu XML. Chúng chỉ định các phần tử, thuộc tính được cho phép và các mối quan hệ giữa chúng. DTD có thể nằm bên trong tài liệu XML hoặc bên ngoài trong một tệp riêng biệt.
 
-Mục đích và cách sử dụng của DTD:
+### Mục đích và cách sử dụng của DTD:
 
 Xác thực : DTD xác thực cấu trúc XML để đảm bảo nó đáp ứng các tiêu chí cụ thể trước khi xử lý, điều này rất quan trọng trong môi trường mà tính toàn vẹn dữ liệu là yếu tố then chốt.
 
@@ -64,11 +64,11 @@ Các DTD nội bộ được chỉ định bằng cách sử dụng `<!DOCTYPE` 
 
 Ví dụ trên cho thấy một DTD nội bộ định nghĩa cấu trúc của một tệp cấu hình. Các khai báo <!ELEMENT chỉ định các phần tử được cho phép và mối quan hệ giữa chúng.
 
-DTD và XXE
+# DTD và XXE
 
 DTD đóng vai trò quan trọng trong tấn công XXE, vì chúng có thể được sử dụng để khai báo các thực thể bên ngoài. Các thực thể bên ngoài có thể tham chiếu đến các tệp hoặc URL bên ngoài, dẫn đến việc chèn dữ liệu hoặc mã độc hại.
 
-Các thực thể XML
+# Các thực thể XML
 
 Các thực thể XML là các phần giữ chỗ cho dữ liệu hoặc mã có thể được mở rộng trong tài liệu XML. Có năm loại thực thể: thực thể nội bộ, thực thể bên ngoài, thực thể tham số, thực thể chung và thực thể ký tự.
 
@@ -84,7 +84,7 @@ Ví dụ về thực thể bên ngoài:
 
 Điều này cho thấy một thực thể bên ngoài tham chiếu đến một URL. `&external;` Tham chiếu trong tài liệu XML sẽ được mở rộng thành nội dung của URL được tham chiếu.
 
-Các loại thực thể
+## Các loại thực thể
 
 1. Các thực thể nội bộ về cơ bản là các biến được sử dụng trong tài liệu XML để định nghĩa và thay thế nội dung có thể lặp lại nhiều lần. Chúng được định nghĩa trong DTD (Định nghĩa kiểu tài liệu) và có thể đơn giản hóa việc quản lý thông tin lặp lại. Ví dụ:
 
@@ -160,9 +160,9 @@ Các nguyên tắc thực hành tốt nhất chung
 2. Sử dụng định dạng dữ liệu đơn giản hơn : Nếu có thể, hãy cân nhắc sử dụng các định dạng dữ liệu đơn giản hơn như...JSON, điều này không cho phép chỉ định các thực thể bên ngoài.
 3. Kiểm tra tính hợp lệ của dữ liệu đầu vào : Xác thực tất cả dữ liệu đến dựa trên một lược đồ nghiêm ngặt xác định các kiểu dữ liệu và mẫu dự kiến. Loại trừ hoặc mã hóa các ký tự đặc thù của XML như <, >, &, ', và ". Các ký tự này rất quan trọng trong cú pháp XML và có thể dẫn đến các cuộc tấn công chèn mã nếu sử dụng sai.
    
-Các kỹ thuật giảm thiểu rủi ro trong ngôn ngữ phổ thông
+# Các kỹ thuật giảm thiểu rủi ro trong ngôn ngữ phổ thông
 
-Java
+## Java
 
 Sử dụng DocumentBuilderFactoryvà vô hiệu hóa DTD:
 
@@ -177,7 +177,7 @@ dbf.setExpandEntityReferences(false);
 DocumentBuilder db = dbf.newDocumentBuilder();
 ```
 
-.NET
+## .NET
 
 Cấu hình trình đọc XML để bỏ qua DTD và các thực thể bên ngoài:
 
@@ -188,7 +188,7 @@ settings.XmlResolver = null;
 XmlReader reader = XmlReader.Create(stream, settings);
 ```
 
-PHP
+## PHP
 
 Vô hiệu hóa việc tải các thực thể bên ngoài bằng libxml:
 
@@ -196,9 +196,9 @@ Vô hiệu hóa việc tải các thực thể bên ngoài bằng libxml:
 libxml_disable_entity_loader(true);
 ```
 
-Python
+## Python
 
-Hãy sử dụng defusedxmlthư viện được thiết kế để giảm thiểu các lỗ hổng bảo mật XML:
+Hãy sử dụng `defusedxml` thư viện được thiết kế để giảm thiểu các lỗ hổng bảo mật XML:
 
 ```
 from defusedxml.ElementTree import parse
