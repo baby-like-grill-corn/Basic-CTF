@@ -105,7 +105,11 @@ JdbcTemplate là một công cụ mạnh mẽ được tích hợp sẵn trong c
 
 # Phân bổ khối lượng và liên kết mô hình
 
+Bộ liên kết dữ liệu của Spring chuyển đổi các tham số yêu cầu thành một đối tượng Java. Một phương thức của bộ điều khiển khai báo một kiểu tham số được chú thích là `@ParameterType` `@ModelAttribute`, và bộ liên kết sẽ khớp các trường biểu mẫu đến, giá trị truy vấn và dữ liệu đường dẫn với các thuộc tính của kiểu đó theo tên. Điều này rất tiện lợi và tự động. Vấn đề là "theo tên" có nghĩa là "mọi thuộc tính theo tên", bao gồm cả những thuộc tính mà biểu mẫu chưa bao giờ hiển thị. Kết quả là việc gán hàng loạt, thuật ngữ mà Spring dùng để chỉ việc ghi đè dữ liệu: kẻ tấn công gửi thêm một trường và bộ liên kết vẫn thiết lập trường đó.
 
+Trình ràng buộc không quan tâm giá trị đến từ đâu. Các trường biểu mẫu, tham số chuỗi truy vấn và biến đường dẫn đều được đưa vào cùng một bước khớp, vì vậy kẻ tấn công có thể đưa một thuộc tính vào thông qua bất kỳ kênh nào mà hành động chấp nhận. Nó cũng không quan tâm liệu giao diện người dùng có hiển thị trường đó hay không. Biểu mẫu được hiển thị chỉ là HTML; hợp đồng ràng buộc là kiểu tham số, chứ không phải trang. Đây là lý do tại sao việc gán hàng loạt xuất hiện lặp đi lặp lại trong mã ràng buộc các thực thể JPA trực tiếp từ yêu cầu, mặc định tiện lợi lại là mặc định không an toàn.
+
+## Nhận diện nó ngay trong nguồn gốc
 
 
 
