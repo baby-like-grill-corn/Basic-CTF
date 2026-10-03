@@ -1,4 +1,4 @@
-SMB Là gì ?
+# SMB Là gì ?
 
 SMB- Giao thức khối thông báo máy chủ (Server Message Block Protocol - MSB) - là một giao thức truyền thông máy khách-máy chủ được sử dụng để chia sẻ quyền truy cập vào các tệp, máy in, cổng nối tiếp và các tài nguyên khác trên mạng. `https://www.techtarget.com/searchnetworking/definition/Server-Message-Block-Protocol`
 
@@ -6,13 +6,13 @@ Máy chủ cung cấp hệ thống tệp và các tài nguyên khác (máy in, �
 
 Giao thức SMB này được gọi là giao thức phản hồi-yêu cầu, có nghĩa là nó truyền nhiều thông điệp giữa máy khách và máy chủ để thiết lập kết nối. Máy khách kết nối với máy chủ bằng cách sử dụng TCP/IP (thực ra NetBIOS qua TCP/IP như được quy định trong RFC1001 và RFC1002), NetBEUI hoặc IPX/SPX.
 
-Làm thế nào SMB công việc?
+# Làm thế nào SMB công việc?
 
 <img width="534" height="239" alt="image" src="https://github.com/user-attachments/assets/3113fd0b-b6bc-4fdb-b342-38167d503cf6" />
 
 Sau khi thiết lập kết nối, các máy khách có thể gửi lệnh (SMB) đến máy chủ để truy cập các thư mục chia sẻ, mở tập tin, đọc và ghi tập tin, và nói chung là thực hiện tất cả các tác vụ mà bạn muốn làm với máy khách.hệ thống tệpTuy nhiên, trong trường hợp của SMB Những việc này được thực hiện qua mạng.
 
-Cái gì chạy SMB ?
+# Cái gì chạy SMB ?
 
 Hệ điều hành Microsoft Windows kể từ Windows 95 đã bao gồm cả phiên bản máy khách và máy chủ. SMB Hỗ trợ giao thức. Samba, một máy chủ mã nguồn mở hỗ trợ... SMB Giao thức này đã được phát hành cho các hệ thống Unix
 
@@ -32,7 +32,7 @@ Bước đầu tiên của quá trình liệt kê là thực hiện quét cổng
 
 Nếu bạn chưa từng tìm hiểu về quét cổng, tôi khuyên bạn nên xem qua `https://tryhackme.com/room/furthernmap` .
 
-Enum4Linux
+# Enum4Linux
 
 Enum4linux là một công cụ được sử dụng để liệt kê. SMB chia sẻ trên cả Windows và Linux Về cơ bản, nó là một lớp bao bọc xung quanh các công cụ trong gói Samba và giúp dễ dàng trích xuất thông tin nhanh chóng từ mục tiêu liên quan đến... SMB Phần mềm này đã được cài đặt sẵn trên AttackBox, tuy nhiên nếu bạn cần cài đặt nó trên máy tấn công của riêng mình, bạn có thể thực hiện việc đó từ kho lưu trữ GitHub chính thức.(`https://github.com/CiscoCXSecurity/enum4linux`).
 
@@ -59,7 +59,7 @@ Như vậy, từ giai đoạn thống kê, chúng ta biết được:
     - Cái SMB chia sẻ vị trí
     - Tên của một thứ thú vị SMB chia sẻ
 
-SMBClient
+# SMBClient
 
 Vì chúng tôi đang cố gắng truy cập vào một SMB Để chia sẻ thông tin, chúng ta cần một máy khách để truy cập tài nguyên trên máy chủ. Chúng ta sẽ sử dụng SMBClient vì nó là một phần của bộ Samba mặc định. Mặc dù nó đã được cài đặt sẵn trên AttackBox, nhưng nếu bạn cần cài đặt nó trên máy tấn công của riêng mình, bạn có thể tìm tài liệu hướng dẫn tại đây.(`https://www.samba.org/samba/docs/current/man-html/smbclient.1.html`)
 
