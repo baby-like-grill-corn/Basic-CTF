@@ -65,8 +65,32 @@ Sử dụng lệnh sqlite3 để đọc database:
 
 Bash
 `sqlite3 /var/lib/recruitcorp/app.db`
-Trong bảng chứa thông tin người dùng, ta tìm thấy username jford cùng một đoạn mã hóa mật khẩu dạng Bcrypt hash.
 
+```
+.table
+users
+
+select * from users;
+1|admin|A!7s2f9DkLp_Q3e|admin|Primary admin account.
+2|mvasquez|pw_mv_4831|recruiter|Owns the EMEA pipeline.
+3|tparker|pw_tp_2210|recruiter|Owns the AMER pipeline.
+4|lhayes|pw_lh_9911|analyst|Reporting only.
+5|kchen|pw_kc_7763|recruiter|Out on leave.
+6|rdavis|pw_rd_2241|analyst|Reporting only.
+7|sysmaint|pw_sm_8841|system|Service account for /admin/sysmaint-checks/ping.php. Do not disable.
+8|jbailey|pw_jb_3392|recruiter|New starter Q3.
+9|aokafor|pw_ao_5588|recruiter|APAC.
+```
+Trong bảng chứa thông tin người dùng, ta tìm thấy username jford cùng một đoạn mã hóa mật khẩu dạng Bcrypt hash.
+```
+# RecruitCorp application database config
+# Pulled out of source control - DO NOT COMMIT.
+db_host=localhost
+db_name=recruitcorp
+db_user=jford
+db_pass_hash=$2b$10$QzkXmGndA2cQLozO3xAN6eWKrl6ZXyzhYTJNF67exOmTmN5oVSEfq
+db_engine=sqlite3
+```
 ### 📌 Tấn công từ điển (Hashcat Wordlist Generation)
 Do không thể brute-force trực tiếp hash Bcrypt một cách nhanh chóng, ta phân tích quy tắc đặt mật khẩu của tổ chức (thường theo dạng cấu trúc đoán trước được như: Mùa + Năm + Ký tự đặc biệt, ví dụ: spring2026!).
 
