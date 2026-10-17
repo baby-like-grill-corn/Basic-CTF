@@ -100,13 +100,16 @@ function e(){
   }
 }
 ```
-Lấy đc mã mời:
+Lấy đc mã mời: <br>
+
 <img width="626" height="120" alt="image" src="https://github.com/user-attachments/assets/a7d73920-d324-4602-aeff-2b27d034def5" />
 
 Nhập mã mới ta đc tài khoản và mật khẩu người dùng guest :
+
 <img width="1375" height="487" alt="image" src="https://github.com/user-attachments/assets/ba60c078-496c-4525-a0ad-048306626445" />
 
 Đăng nhập
+
 <img width="1398" height="480" alt="image" src="https://github.com/user-attachments/assets/3b261c3f-0d5b-4691-8020-9a83c987bc06" />
 
 # 3. Leo thang đặc quyền (Privilege Escalation & Web Shell)
@@ -184,6 +187,11 @@ Giải thích lệnh:
 
 `-r request.txt`: Nạp gói tin HTTP thô chứa toàn bộ header, cookie và tham số cần kiểm tra mà không cần cấu hình thủ công.
 `--dump`: Tự động tìm kiếm điểm tiêm nhiễm SQLi và trích xuất toàn bộ cơ sở dữ liệu, các bảng, cột cùng dữ liệu người dùng (tài khoản/mật khẩu quản trị).
+
+Thành công lấy đc flag : <br>
+
+<img width="482" height="335" alt="image" src="https://github.com/user-attachments/assets/c73948e2-4fcb-4360-b078-5452bc8a7fad" />
+
 
 Kết quả: Trích xuất thành công cơ sở dữ liệu hackme và lấy được thông tin đăng nhập tài khoản quản trị (admin).
 
