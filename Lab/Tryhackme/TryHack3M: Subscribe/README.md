@@ -188,13 +188,12 @@ Giải thích lệnh:
 `-r request.txt`: Nạp gói tin HTTP thô chứa toàn bộ header, cookie và tham số cần kiểm tra mà không cần cấu hình thủ công.
 `--dump`: Tự động tìm kiếm điểm tiêm nhiễm SQLi và trích xuất toàn bộ cơ sở dữ liệu, các bảng, cột cùng dữ liệu người dùng (tài khoản/mật khẩu quản trị).
 
-Thành công lấy đc flag : <br>
-
-<img width="482" height="335" alt="image" src="https://github.com/user-attachments/assets/c73948e2-4fcb-4360-b078-5452bc8a7fad" />
-
-
 Kết quả: Trích xuất thành công cơ sở dữ liệu hackme và lấy được thông tin đăng nhập tài khoản quản trị (admin).
 
 <img width="1093" height="187" alt="image" src="https://github.com/user-attachments/assets/8a50345c-4b3d-4b66-99ea-042c4ed45910" />
 
 <img width="781" height="320" alt="image" src="https://github.com/user-attachments/assets/d834e7e5-e4d0-4c9b-90c4-80b4a6480c3e" />
+
+Thành công lấy đc flag : <br>
+
+<img width="482" height="335" alt="image" src="https://github.com/user-attachments/assets/c73948e2-4fcb-4360-b078-5452bc8a7fad" />
