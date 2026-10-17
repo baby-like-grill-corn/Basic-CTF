@@ -1,0 +1,14 @@
+POST /api/login.php HTTP/1.1
+Host: admin1337special.hackme.thm:40009
+Content-Length: 37
+Accept-Language: en-US,en;q=0.9
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Content-Type: application/json
+Accept: */*
+Origin: http://admin1337special.hackme.thm:40009
+Referer: http://admin1337special.hackme.thm:40009/public/html/login
+Accept-Encoding: gzip, deflate, br
+Cookie: PHPSESSID=f6u0eehumfcs14t5qp680lkafv
+Connection: keep-alive
+
+{"username":"abc","password":"admin"}
