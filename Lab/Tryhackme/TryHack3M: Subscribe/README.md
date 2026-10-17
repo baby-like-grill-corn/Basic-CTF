@@ -100,6 +100,14 @@ function e(){
   }
 }
 ```
+Lấy đc mã mời:
+<img width="626" height="120" alt="image" src="https://github.com/user-attachments/assets/a7d73920-d324-4602-aeff-2b27d034def5" />
+
+Nhập mã mới ta đc tài khoản và mật khẩu người dùng guest :
+<img width="1375" height="487" alt="image" src="https://github.com/user-attachments/assets/ba60c078-496c-4525-a0ad-048306626445" />
+
+Đăng nhập
+<img width="1398" height="480" alt="image" src="https://github.com/user-attachments/assets/3b261c3f-0d5b-4691-8020-9a83c987bc06" />
 
 # 3. Leo thang đặc quyền (Privilege Escalation & Web Shell)
 Thay đổi trạng thái Session (Cookie Manipulation):
@@ -117,6 +125,36 @@ Do nút bấm kích hoạt phòng lab bị lỗi giao diện iframe, chuyên gia
 <img width="847" height="342" alt="image" src="https://github.com/user-attachments/assets/2854f82c-d8ab-454b-ac54-41b609695987" />
 
 Đọc tệp cấu hình config.php thông qua terminal bị giới hạn này để thu thập Access Token quản trị và đường dẫn đến trang quản trị viên (Admin panel).
+
+Phát hiện 1 đường link `http://admin1337special.hackme.thm:40009` thêm cào file `/etc/hosts`. Sau đó thực hiện `gobuster` ta đc
+```
+┌──(kali㉿kali)-[~]
+└─$ gobuster dir -u http://admin1337special.hackme.thm:40009/public/html/ -w /usr/share/wordlists/dirb/common.txt -t 100
+===============================================================
+Gobuster v3.8
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://admin1337special.hackme.thm:40009/public/html/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirb/common.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.8
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/.hta                 (Status: 403) [Size: 295]
+/.htaccess            (Status: 403) [Size: 295]
+/.htpasswd            (Status: 403) [Size: 295]
+/dashboard            (Status: 403) [Size: 0]
+/login                (Status: 200) [Size: 1662]
+/logout               (Status: 200) [Size: 154]
+Progress: 4613 / 4613 (100.00%)
+===============================================================
+Finished
+===============================================================
+```
 
 # 4. Khai thác lỗ hổng SQL Injection (SQLmap Automation)
 Bắt gói tin (Request Capture): Sử dụng Proxy để chặn gói tin POST tại trang đăng nhập admin và lưu thành tệp request.txt.
