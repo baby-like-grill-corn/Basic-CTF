@@ -197,6 +197,7 @@ Kết quả: Trích xuất thành công cơ sở dữ liệu hackme và lấy đ
 Thành công lấy đc flag : <br>
 
 <img width="482" height="335" alt="image" src="https://github.com/user-attachments/assets/c73948e2-4fcb-4360-b078-5452bc8a7fad" />
+
 # 5. Phân tích Log điều tra sự cố trên Splunk (Log Analysis)
 Sau khi đăng nhập vào Splunk (cổng 8000) bằng tài khoản admin với mốc thời gian thiết lập là "All time", chuyên gia tiến hành trả lời các câu hỏi điều tra số (DFIR):
 
