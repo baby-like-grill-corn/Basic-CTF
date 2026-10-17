@@ -1,6 +1,12 @@
 # 1. Trinh sát hệ thống (Port Enumeration)
 Mục tiêu: Quét toàn bộ các cổng mạng để xác định các dịch vụ đang mở trên máy chủ mục tiêu.
 
+```
+┌──(kali㉿kali)-[~]
+└─$ rustscan -a 10.112.167.121
+```
+
+
 Thực hiện: Chạy quét cổng toàn diện (Nmap) để phát hiện các dịch vụ quan trọng:
 
 Port 80 (HTTP): Giao diện web chính của ứng dụng.
