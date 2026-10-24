@@ -122,13 +122,22 @@ Sử dụng số cổng nguồn cụ thể. Quét từ một số cổng nguồn
 5. Giả mạo địa chỉ IP nguồn	                  =>                -S IP_ADDRESS <br>
 6. Sử dụng số cổng nguồn cụ thể	               =>                -g PORT_NUM hoặc--source-port PORT_NUM <br>
 
+# Né tránh bằng cách ép buộc phân mảnh, MTU và độ dài dữ liệu
 
+Bạn có thể kiểm soát kích thước gói dữ liệu vì điều đó cho phép bạn:
 
+1. Phân mảnh gói tin, tùy chọn với thông tin đã cho.MTU Nếu tường lửa hoặc IDS/IPS Nếu không lắp ráp lại gói dữ liệu, hệ thống rất có thể sẽ cho phép gói dữ liệu đi qua. Do đó, hệ thống đích sẽ lắp ráp lại và xử lý nó.
+2. Gửi các gói dữ liệu có độ dài cụ thể.
 
+## Phân mảnh gói dữ liệu của bạn với 8 byte dữ liệu.
+Một cách đơn giản để phân mảnh gói tin của bạn là sử dụng `-f` tùy chọn này. Tùy chọn này sẽ phân mảnh gói tin IP để chỉ mang 8 byte dữ liệu. Như đã đề cập trước đó, việc chạy quét cổng TCP bằng Nmap có nghĩa là gói tin IP sẽ chứa 24 byte, là phần tiêu đề TCP. Nếu bạn muốn giới hạn dữ liệu IP ở mức 8 byte, 24 byte của tiêu đề TCP sẽ được chia thành 3 gói tin IP. Và đây chính xác là những gì chúng ta thu được khi chạy quét Nmap này `nmap -sS -Pn -f -F MACHINE_IP`. Như chúng ta có thể thấy trong bản ghi Wireshark ở hình bên dưới, mỗi gói tin IP được phân mảnh thành ba gói tin, mỗi gói tin có 8 byte dữ liệu.
 
+<img width="915" height="825" alt="4b9961c8f49af3eded45b0b43c03548b" src="https://github.com/user-attachments/assets/3daa9a2e-0bbd-493b-86f8-c73e3596199e" />
 
+## Phân mảnh gói dữ liệu của bạn với 16 byte dữ liệu.
+Một tùy chọn tiện dụng khác là sử dụng lệnh ` -ff`<IP_head>, giới hạn dữ liệu IP ở mức 16 byte. (Một cách dễ nhớ là `<IP_head>` f là 8 byte, nhưng hai `f`<IP_head> là 16 byte.) Bằng cách chạy lệnh <IP_head> `nmap -sS -Pn -ff -F MACHINE_IP`, chúng ta kỳ vọng 24 byte của tiêu đề TCP sẽ được chia thành hai gói IP, 16 + 8, vì ` -ff <IP_head>` đã đặt giới hạn trên là 16 byte. Một vài gói tin đầu tiên được hiển thị trong bản ghi Wireshark bên dưới.
 
-
+<img width="915" height="825" alt="fc0fd2f0fed576aed08e9750acff314b" src="https://github.com/user-attachments/assets/d9def01c-68c1-4de2-93c7-52de37282e2b" />
 
 
 
