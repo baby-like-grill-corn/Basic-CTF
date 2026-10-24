@@ -114,13 +114,13 @@ Sử dụng số cổng nguồn cụ thể. Quét từ một số cổng nguồn
 <img width="915" height="825" alt="a0307f9e74e7f110b546dc7b423a288e" src="https://github.com/user-attachments/assets/f13e0cc7-a821-4517-855f-f3c70f189edb" />
 
 ## Đây là bản tóm tắt nhanh các tùy chọn Nmap đã được thảo luận trong nhiệm vụ này.
-#### Phương pháp né tránh	                                  Đối số Nmap <br>
-Che giấu quá trình quét bằng các mục tiêu giả mạo.	          -D DECOY1_IP1,DECOY_IP2,ME <br>
-Che giấu quá trình quét bằng các mục tiêu giả ngẫu nhiên.	 -D RND,RND,ME <br>
-Sử dụng proxy HTTP/SOCKS4 để chuyển tiếp kết nối.	          --proxies PROXY_URL <br>
-Địa chỉ MAC nguồn giả mạo	                                  --spoof-mac MAC_ADDRESS <br>
-Giả mạo địa chỉ IP nguồn	                                  -S IP_ADDRESS <br>
-Sử dụng số cổng nguồn cụ thể	                               -g PORT_NUM hoặc--source-port PORT_NUM <br>
+
+1. Che giấu quá trình quét bằng các mục tiêu giả mạo.	    =>      -D DECOY1_IP1,DECOY_IP2,ME <br>
+2. Che giấu quá trình quét bằng các mục tiêu giả ngẫu nhiên.	=> -D RND,RND,ME <br>
+3. Sử dụng proxy HTTP/SOCKS4 để chuyển tiếp kết nối.	     =>     --proxies PROXY_URL <br>
+4. Địa chỉ MAC nguồn giả mạo	                  =>                --spoof-mac MAC_ADDRESS <br>
+5. Giả mạo địa chỉ IP nguồn	                  =>                -S IP_ADDRESS <br>
+6. Sử dụng số cổng nguồn cụ thể	               =>                -g PORT_NUM hoặc--source-port PORT_NUM <br>
 
 
 
