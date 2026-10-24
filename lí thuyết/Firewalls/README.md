@@ -1,4 +1,4 @@
-<img width="915" height="825" alt="0123f32d7cc90fca50a3d565824955b1" src="https://github.com/user-attachments/assets/c0c7a59e-22f5-4e96-9882-407c1e3e8025" /># KHÁI NIỆM
+# KHÁI NIỆM
 
 Tường lửa là bộ lọc phần mềm hoặc phần cứng giám sát lưu lượng mạng và so sánh nó với một tập hợp các quy tắc trước khi cho phép hoặc chặn nó. Một ví dụ đơn giản là người bảo vệ hoặc người gác cổng ở lối vào một sự kiện. Người gác cổng này có thể kiểm tra danh tính của các cá nhân so với một tập hợp các quy tắc trước khi cho phép họ vào (hoặc ra).
 
