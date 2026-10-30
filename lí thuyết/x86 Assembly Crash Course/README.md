@@ -84,11 +84,22 @@ Các lệnh xoay (rotate) tương tự như các lệnh dịch chuyển (shift).
 
 <img width="2334" height="2334" alt="image" src="https://github.com/user-attachments/assets/f84e5614-abf4-484f-9a41-05fd611ab31c" />
 
-Ở đây, rorlệnh xoay điểm đến sang phải và rolxoay điểm đến sang trái.nghỉ ngơi Cú pháp vẫn giữ nguyên. Ví dụ, nếu ta có 10101010 trong al, và xoay nó sang phải 1 bit, kết quả sẽ là 01010101. Tương tự, xoay kết quả này sang trái 1 bit sẽ lại cho ra 10101010.
+Ở đây, `ror`lệnh xoay điểm đến sang phải và rolxoay điểm đến sang trái.nghỉ ngơi Cú pháp vẫn giữ nguyên. Ví dụ, nếu ta có 10101010 trong al, và xoay nó sang phải 1 bit, kết quả sẽ là 01010101. Tương tự, xoay kết quả này sang trái 1 bit sẽ lại cho ra 10101010.
 
+# FLAG 
 
+Trong ngôn ngữ hợp ngữ x86,CPU Có một số cờ (flags) biểu thị kết quả của các phép toán hoặc điều kiện nhất định. Các cờ này là các bit trong một thanh ghi đặc biệt được gọi là thanh ghi cờ (flags register) hoặc thanh ghi EFLAGS . Mỗi cờ đại diện cho một điều kiện hoặc kết quả cụ thể của phép toán số học hoặc logic gần đây nhất. Dưới đây là bảng liệt kê các cờ phổ biến nhất trong ngôn ngữ lập trình hợp ngữ x86 và giải thích của chúng:
 
-
+| Flag | Abbreviation | Explanation |
+| :--- | :---: | :--- |
+| Carry | CF | Set when a carry-out or borrow is required from the most significant bit in an arithmetic operation. Also used for bit-wise shifting operations. |
+| Parity | PF | Set if the least significant byte of the result contains an even number of 1 bits. |
+| Auxiliary | AF | Set if a carry-out or borrow is required from bit 3 to bit 4 in an arithmetic operation (BCD arithmetic). |
+| Zero | ZF | Set if the result of the operation is zero. |
+| Sign | SF | Set if the result of the operation is negative (i.e., the most significant bit is 1). |
+| Overflow | OF | Set if there's a signed arithmetic overflow (e.g., adding two positive numbers and getting a negative result or vice versa). |
+| Direction | DF | Determines the direction for string processing instructions. If DF=0, the string is processed forward; if DF=1, the string is processed backward. |
+| Interrupt Enable | IF | If set (1), it enables maskable hardware interrupts. If cleared (0), interrupts are disabled. |
 
 
 
