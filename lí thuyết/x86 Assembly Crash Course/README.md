@@ -18,6 +18,138 @@ Khi xem xét nó trong trình dịch ngược, ta sẽ thấy:
 
 Chúng ta thấy rằng trong thao tác trên, chúng ta có ba phần: một lệnh movvà hai toán hạng, `eax`và `0x5f`. Trong lệnh cụ thể này, giá trị `0x5f`được chuyển vào `eax`; tuy nhiên, chúng ta cũng có thể có các loại toán hạng khác trong ngôn ngữ hợp ngữ.
 
+## Các loại toán hạng
+Nhìn chung, có ba loại toán hạng trong ngôn ngữ lập trình hợp ngữ.
+
+Các toán hạng tức thời (Immediate Operand) cũng có thể được coi là hằng số. Chúng là các giá trị cố định như0x5ftrong ví dụ trên.
+Các thanh ghi (Registers) cũng có thể là toán hạng. Ví dụ trên cho thấyeaxmột thanh ghi lưu trữ toán hạng tức thời.
+Các toán hạng bộ nhớ (Memory operands) được ký hiệu bằng dấu ngoặc vuông và chúng tham chiếu đến các vị trí bộ nhớ. Ví dụ, nếu ta thấy`[eax]`là một toán hạng, điều đó có nghĩa là giá trị trong eax là vị trí bộ nhớ mà phép toán cần được thực hiện. 
+Bây giờ chúng ta đã tìm hiểu về toán hạng và mã lệnh, trong bài tập tiếp theo, chúng ta sẽ tìm hiểu về các lệnh hợp ngữ thông dụng.
+
+# General Instructions
+Hướng dẫn cho CPU biết Thao tác cần thực hiện là gì? Các lệnh thường sử dụng toán hạng từ thanh ghi, bộ nhớ hoặc toán hạng tức thời để thực hiện các phép toán và sau đó lưu trữ kết quả vào thanh ghi hoặc bộ nhớ. Trong nhiệm vụ này, chúng ta sẽ tìm hiểu các lệnh phổ biến nhất mà chúng ta có thể gặp phải khi phân tích ngược mã độc.
+
+## Lệnh MOV
+
+Lệnh mov di chuyển một giá trị từ vị trí này sang vị trí khác. Cú pháp của nó như sau:
+`mov destination, source`
+
+Lệnh mov có thể di chuyển một giá trị cố định đến một thanh ghi, từ một thanh ghi đến một thanh ghi khác, và từ một giá trị trong một vị trí bộ nhớ đến một thanh ghi. Các ví dụ sau đây sẽ giúp giải thích rõ hơn.
+
+Lệnh sau sao chép một giá trị cố định vào một thanh ghi. Trong lệnh cụ thể này, giá trị `0x5f` được ghi vào thanh ghi `eax`:
+`mov eax, 0x5f`
+
+Trong trường hợp cụ thể này, giá trị được lưu trữ trong thanh ghi eax đang được chuyển sang thanh ghi ebx:
+`mov ebx, eax`
+
+Lệnh sau sao chép giá trị được lưu trữ trong một vị trí bộ nhớ vào một thanh ghi:
+`mov eax, [0x5fc53e]`
+
+Như đã thấy ở trên, chúng ta sử dụng dấu ngoặc vuông khi tham chiếu đến vùng nhớ. Tương tự, giả sử chúng ta thấy một thanh ghi trong dấu ngoặc vuông. Trong trường hợp đó, điều đó có nghĩa là giá trị trong thanh ghi đó sẽ được coi là một vị trí bộ nhớ, và giá trị trong vị trí bộ nhớ đó sẽ được di chuyển đến đích. Điều này có nghĩa là ví dụ trên `mov eax, [0x5fc3e]`và ví dụ bên dưới sẽ cho cùng một kết quả.
+`mov ebx, 0x5fc53e`
+`mov eax, [ebx]`
+
+Chúng ta có thể sử dụng lệnh mov để thực hiện các phép tính số học khi tham chiếu đến địa chỉ bộ nhớ. Ví dụ, lệnh dưới đây tính toán `ebp+4` (thêm một độ lệch 4 byte vào vị trí bộ nhớ) và di chuyển giá trị tại địa chỉ bộ nhớ kết quả vào thanh ghi eax:
+`mov eax, [ebp+4]`
+
+## Hướng dẫn của LEA
+Lệnh `lea` viết tắt của "load effective address" (tải địa chỉ hiệu lực). Cú pháp của lệnh này như sau:
+`lea destination, source`
+
+Trong khi lệnh mov di chuyển dữ liệu tại địa chỉ bộ nhớ nguồn đến địa chỉ đích, lệnh lea di chuyển địa chỉ của nguồn vào đích. Trong ví dụ bên dưới, giá trị `ebp` sẽ được tăng lên bốn và di chuyển đến `eax`. Tuy nhiên, nếu chúng ta sử dụng lệnh mov thay vì lea, nó sẽ di chuyển giá trị tại vị trí bộ nhớ ebp+4.
+`lea eax, [ebp+4]`
+
+Ở đây, ta có thể thấy rằng ta đã thực hiện một phép toán số học trên một thanh ghi và lưu kết quả vào một thanh ghi khác bằng một lệnh duy nhất. leaLệnh này thường được các trình biên dịch sử dụng không phải để tham chiếu đến các vị trí bộ nhớ mà để thực hiện một phép toán số học trên một thanh ghi và lưu vào một thanh ghi khác bằng một lệnh duy nhất. Điều này đặc biệt đúng nếu các phép toán số học phức tạp hơn, chẳng hạn như cộng và nhân trong một lệnh duy nhất. Như ta sẽ thấy trong bài tập tiếp theo, việc sử dụng các phép toán số học cho thao tác này sẽ cần nhiều lệnh hơn.
+
+## Hướng dẫn NOP
+Lệnh nop viết tắt của `no operation` (không thực hiện thao tác nào). Lệnh này hoán đổi giá trị trong thanh ghi eax với chính nó, dẫn đến không có thao tác nào có ý nghĩa. Do đó, quá trình thực thi chuyển sang lệnh tiếp theo mà không thay đổi bất cứ điều gì. Lệnh nop được sử dụng để tiêu tốn chu kỳ CPU trong khi chờ đợi một thao tác hoặc các mục đích tương tự. Nó có cú pháp như sau:
+nop
+
+Lệnh `nop` được các tác giả phần mềm độc hại sử dụng khi chuyển hướng thực thi đến shellcode của chúng. Vị trí chính xác mà quá trình thực thi sẽ chuyển hướng thường không được biết trước, vì vậy tác giả phần mềm độc hại sử dụng một loạt các lệnh `nop` để đảm bảo rằng việc thực thi shellcode không bắt đầu từ giữa. Phần đệm bằng các lệnh `nop` này được gọi là "nop sled".
+
+## Hướng dẫn ca làm việc
+CPU sử dụng các lệnh dịch bit để dịch chuyển từng bit trong thanh ghi đến bit liền kề. Có hai lệnh dịch bit để dịch chuyển sang phải hoặc sang trái. Các lệnh dịch bit có cú pháp như sau:
+`shr destination, count`
+`shl destination, count`
+
+Ở đây, `shr`lệnh này dùng cho phép dịch phải, và lệnh kia `shl`dùng cho phép dịch trái. Lệnh này dịch chuyển các bit trong toán `destination`hạng. Toán `count`hạng quyết định số bit cần dịch chuyển. Các bit bị dịch chuyển ra khỏi vị trí của chúng sẽ được điền bằng số 0. Vì vậy, nếu ta có 00000010 trong thanh ghi eax và dịch chuyển nó sang trái, kết quả sẽ trở thành 00000100.
+Cờ nhớ (CF) được sử dụng để tăng giá trị đích, vì nó được điền bởi bit cuối cùng tràn ra khỏi đích. Ví dụ, nếu ta có 00000101 trong thanh ghi eax và dịch chuyển nó sang phải 1 bit, kết quả sẽ có 00000010 trong thanh ghi eax, và cờ nhớ sẽ được đặt, tức là nó sẽ có giá trị là 1.
+
+Các lệnh dịch chuyển được sử dụng thay cho phép nhân và chia cho hai hoặc lũy thừa của hai (2^ n, trong đó n là số lần dịch chuyển trong lệnh dịch chuyển). Điều này giúp tiết kiệm thời gian thực thi bằng cách không phải thao tác các giá trị trong thanh ghi trước khi thực hiện phép nhân hoặc phép chia. Ví dụ, nếu thanh ghi eax có giá trị 00000010, và ta dịch phải 1 bit, ta được 00000001, kết quả tương đương với việc chia eax cho 2. Tương tự, nếu eax có giá trị 00000001, và ta dịch trái 1 bit, kết quả là 00000010, tương đương với việc nhân eax với 2.
+
+## Hướng dẫn xoay
+Các lệnh xoay (rotate) tương tự như các lệnh dịch chuyển (shift). Sự khác biệt duy nhất là các bit được xoay ngược trở lại đầu kia của thanh ghi thay vì di chuyển bit tràn vào cờ nhớ (carry flag) hoặc thêm số 0 thay vì dịch chuyển các bit ra ngoài. Lệnh xoay có cú pháp sau:
+`ror destination, count`
+`rol destination, count`
+
+<img width="2334" height="2334" alt="image" src="https://github.com/user-attachments/assets/f84e5614-abf4-484f-9a41-05fd611ab31c" />
+
+Ở đây, rorlệnh xoay điểm đến sang phải và rolxoay điểm đến sang trái.nghỉ ngơi Cú pháp vẫn giữ nguyên. Ví dụ, nếu ta có 10101010 trong al, và xoay nó sang phải 1 bit, kết quả sẽ là 01010101. Tương tự, xoay kết quả này sang trái 1 bit sẽ lại cho ra 10101010.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
