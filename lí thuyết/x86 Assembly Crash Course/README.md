@@ -14,9 +14,9 @@ Mã lệnh (opcode) là các dãy số tương ứng với các lệnh được 
 Khi xem xét nó trong trình dịch ngược, ta sẽ thấy:
 `040000:    b8 5f 00 00 00    mov eax, 0x5f`
 
-Ở đây, `040000:`tương ứng với địa chỉ nơi lệnh được đặt. `b8`đề cập đến mã lệnh (opcode) của lệnh mov eax, và 5F 00 00 00chỉ ra toán hạng còn lại 0x5f. Xin lưu ý rằng do thứ tự byte (endianness) , toán hạng 0x5f được viết là 5f 00 00 00, thực chất là 00 00 00 5fnhưng ở dạng little-endian. Tương tự, có một mã lệnh (opcode) cho mỗi lệnh trong ngôn ngữ assembly. Có các tài liệu tham khảo để chuyển đổi mã lệnh thành lệnh assembly. Tuy nhiên, trừ khi chúng ta đang viết một trình dịch ngược mã (disassembler), chúng ta sẽ không cần đến chúng, vì trình dịch ngược mã thực hiện công việc đó khá tốt. Tuy nhiên, việc hiểu những gì đang xảy ra bên trong sẽ giúp có cái nhìn tổng quan tốt hơn.
+Ở đây, `040000:`tương ứng với địa chỉ nơi lệnh được đặt. `b8`đề cập đến mã lệnh (opcode) của lệnh `mov eax`, và `5F 00 00 00`chỉ ra toán hạng còn lại `0x5f`  . Xin lưu ý rằng do thứ tự byte (endianness) , toán hạng `0x5f` được viết là `5f 00 00 00`, thực chất là `00 00 00 5f` nhưng ở dạng little-endian. Tương tự, có một mã lệnh (opcode) cho mỗi lệnh trong ngôn ngữ assembly. Có các tài liệu tham khảo để chuyển đổi mã lệnh thành lệnh assembly. Tuy nhiên, trừ khi chúng ta đang viết một trình dịch ngược mã (disassembler), chúng ta sẽ không cần đến chúng, vì trình dịch ngược mã thực hiện công việc đó khá tốt. Tuy nhiên, việc hiểu những gì đang xảy ra bên trong sẽ giúp có cái nhìn tổng quan tốt hơn.
 
-Chúng ta thấy rằng trong thao tác trên, chúng ta có ba phần: một lệnh movvà hai toán hạng, eaxvà 0x5f. Trong lệnh cụ thể này, giá trị 0x5fđược chuyển vào eax; tuy nhiên, chúng ta cũng có thể có các loại toán hạng khác trong ngôn ngữ hợp ngữ.
+Chúng ta thấy rằng trong thao tác trên, chúng ta có ba phần: một lệnh movvà hai toán hạng, `eax`và `0x5f`. Trong lệnh cụ thể này, giá trị `0x5f`được chuyển vào `eax`; tuy nhiên, chúng ta cũng có thể có các loại toán hạng khác trong ngôn ngữ hợp ngữ.
 
 
 
