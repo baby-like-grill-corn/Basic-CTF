@@ -101,19 +101,32 @@ Trong ngôn ngữ hợp ngữ x86,CPU Có một số cờ (flags) biểu thị k
 | Direction | DF | Determines the direction for string processing instructions. If DF=0, the string is processed forward; if DF=1, the string is processed backward. |
 | Interrupt Enable | IF | If set (1), it enables maskable hardware interrupts. If cleared (0), interrupts are disabled. |
 
+Cờ (flags) có thể được sử dụng trong các lệnh nhảy có điều kiện và rất quan trọng để thực hiện rẽ nhánh có điều kiện trong mã hợp ngữ. Ví dụ, bạn có thể chỉ nhảy đến một địa chỉ cụ thể nếu một cờ nhất định được thiết lập hoặc xóa.
 
+# Arithmetic and Logical Instructions
+## Các phép toán số học
+Các phép toán số học được thực hiện bởi CPU Sử dụng các lệnh số học. Trong bài tập này, chúng ta sẽ cùng tìm hiểu các lệnh đó.
+## Hướng dẫn phép cộng và phép trừ
 
+Cú pháp của lệnh cộng như sau: Giá trị được cộng vào biến đích, và kết quả được lưu trữ trong biến đích.
+`add destination, value`
 
+Lệnh trừ có cú pháp tương tự. Trong cú pháp bên dưới, giá trị được trừ đi từ giá trị đích, và kết quả được lưu trữ trong giá trị đích.
+`sub destination, value`
 
+Trong các ví dụ trên, giá trị có thể là một hằng số cố định hoặc một thanh ghi. Đối với phép trừ, cờ số 0 (ZF) được đặt nếu kết quả phép trừ bằng 0. Nếu giá trị đích nhỏ hơn giá trị bị trừ, thì cờ nhớ (CF) được đặt
 
+## Hướng dẫn phép nhân và phép chia
+Các phép toán nhân và chia sử dụng các thanh ghi eax và edx. Do đó, chúng ta sẽ phải xem xét lệnh cuối cùng thao tác với các thanh ghi này cho mỗi phép nhân và phép chia. 
 
+Lệnh nhân có định dạng như sau: Nó nhân giá trị với thanh ghi eax và lưu kết quả vào thanh ghi edx:eax dưới dạng giá trị 64 bit. Cần hai thanh ghi ở đây vì kết quả của phép nhân hai giá trị 32 bit thường có thể lớn hơn 32 bit. 32 bit thấp hơn của kết quả được lưu trữ trong thanh ghi eax, và 32 bit cao hơn được lưu trữ trong thanh ghi edx.
 
+`mul value`
 
+Giá trị có thể là một thanh ghi khác hoặc một hằng số dưới dạng toán hạng tức thời.
 
-
-
-
-
+Đối với lệnh chia, trường hợp ngược lại. Nó chia giá trị 64 bit trong edx:eax và lưu kết quả vào eax, phần dư vào edx.
+`div value`
 
 
 
