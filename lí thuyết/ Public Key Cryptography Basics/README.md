@@ -200,6 +200,77 @@ Trong các cuộc thi CTF, kiểm thử xâm nhập và diễn tập tấn công
 
 Đây là cách nó hoạt động trong thực tế. Bạn có một shell đảo ngược với tư cách là người dùng thông thường, nhưng nó dễ bị phá vỡ. Trên máy tính của bạn, hãy chạy lệnh `ssh-keygen` để tạo một cặp khóa. Thông qua shell đảo ngược, hãy thêm nội dung của `.pubtệp` của bạn vào `~/.ssh/authorized_keys` thư mục chính của người dùng đó. Nếu `~/.ssh` thư mục chưa tồn tại, hãy tạo nó trước bằng lệnh ` mkdir -p ~/.ssh.`. Sau đó kết nối bằng lệnh ` ssh -i id_ed25519 user@MACHINE_IP,`, thay thế user`<username>` bằng tên người dùng của mục tiêu. Bây giờ bạn đã có một shell ổn định với tính năng tự động hoàn thành bằng phím Tab, và tổ hợp phím Control-C không còn tắt nó nữa.
 
+# Chữ ký và chứng chỉ số
+
+Trong thế giới "analog" , bạn thỉnh thoảng được yêu cầu ký giấy tờ. Khi đến ngân hàng để mở tài khoản tiết kiệm, bạn rất có thể được yêu cầu ký một số giấy tờ. Khi muốn tạo tài khoản tại thư viện địa phương, bạn sẽ được yêu cầu điền và ký đơn đăng ký. Mục đích có thể khác nhau tùy thuộc vào tình huống. Ví dụ, nó có thể xác nhận rằng bạn đồng ý với các điều khoản và điều kiện, ủy quyền giao dịch hoặc xác nhận đã nhận được một vật phẩm. Trong thế giới "kỹ thuật số" , bạn không thể sử dụng chữ ký, con dấu hoặc dấu vân tay của mình; bạn cần chữ ký điện tử.
+
+## Chữ ký số là gì?
+
+Chữ ký số cung cấp một cách để xác minh tính xác thực và toàn vẹn của một thông điệp hoặc tài liệu số. Việc chứng minh tính xác thực của các tệp tin có nghĩa là chúng ta biết được ai đã tạo ra hoặc chỉnh sửa chúng. Sử dụng mã hóa bất đối xứng, bạn tạo ra một chữ ký bằng khóa riêng của mình, có thể được xác minh bằng khóa công khai của bạn. Chỉ có bạn mới có quyền truy cập vào khóa riêng của mình, điều này chứng minh rằng bạn đã ký vào tệp tin đó. Trong nhiều quốc gia hiện đại, chữ ký số và chữ ký vật lý có cùng giá trị pháp lý.
+
+<img width="1840" height="1040" alt="5f04259cf9bf5b57aed2c476-1725294344472" src="https://github.com/user-attachments/assets/4d1c6d23-73b5-46dc-9349-b5cac7e71c29" />
+
+Một số bài viết sử dụng các thuật ngữ như chữ ký điện tử và chữ ký số thay thế cho nhau. Chúng đề cập đến việc dán hình ảnh chữ ký lên trên một tài liệu. Cách tiếp cận này không chứng minh được tính toàn vẹn của tài liệu, vì bất kỳ ai cũng có thể sao chép và dán hình ảnh.
+
+Trong bài tập này, chúng ta sử dụng thuật ngữ chữ ký số để chỉ việc ký một tài liệu bằng khóa riêng hoặc chứng chỉ. Quá trình này hoạt động tương tự như hình ảnh minh họa ở trên, ngoại trừ việc Bob mã hóa một mã băm (hash) của tài liệu thay vì chính tài liệu đó, và chia sẻ mã băm này với Alice cùng với tài liệu gốc. Alice có thể giải mã mã băm đã mã hóa và so sánh nó với mã băm của tệp mà cô ấy nhận được. Cách tiếp cận này chứng minh tính toàn vẹn của tài liệu, khác với việc chỉ dán một hình ảnh chữ ký giả. Chúng ta sẽ tìm hiểu về hàm băm trong phần "
+
+## Giấy chứng nhận: Chứng minh bạn là ai!
+Chứng chỉ là một ứng dụng thiết yếu của mật mã khóa công khai, và chúng cũng liên quan đến chữ ký số. Một lĩnh vực phổ biến mà chúng được sử dụng là HTTPS. Làm thế nào trình duyệt web của bạn biết rằng máy chủ mà bạn đang kết nối là tryhackme.com thật?
+
+Câu trả lời nằm ở các chứng chỉ. Máy chủ web có chứng chỉ xác nhận rằng nó là trang web tryhackme.com chính hãng. Các chứng chỉ này có một chuỗi tin cậy, bắt đầu từ chứng chỉ gốc.CA(Tổ chức cấp chứng chỉ). Ngay từ khi cài đặt, thiết bị, hệ điều hành và trình duyệt web của bạn tự động tin tưởng nhiều tổ chức cấp chứng chỉ gốc khác nhau. Chứng chỉ chỉ được tin tưởng khi các tổ chức cấp chứng chỉ gốc xác nhận rằng họ tin tưởng tổ chức đã ký chứng chỉ đó. Nói cách khác, đó là một chuỗi; ví dụ, chứng chỉ được ký bởi một tổ chức, tổ chức đó được một tổ chức cấp chứng chỉ tin tưởng, và tổ chức đó được trình duyệt của bạn tin tưởng. Do đó, trình duyệt của bạn tin tưởng chứng chỉ đó. Nhìn chung, có những chuỗi tin cậy dài. Bạn có thể xem danh sách các tổ chức cấp chứng chỉ được Mozilla Firefox tin tưởng tại đây và Google Chrome tại đây .
+
+Giả sử bạn có một trang web và muốn sử dụng HTTPS. Bước này yêu cầu bạn có một chứng chỉ TLS. Bạn có thể mua một chứng chỉ từ các tổ chức cấp chứng chỉ khác nhau với phí hàng năm. Ngoài ra, bạn cũng có thể tự tạo chứng chỉ TLS cho các miền mà bạn sở hữu thông qua Let’s Encrypt hoàn toàn miễn phí. Nếu bạn đang chạy một trang web, việc thiết lập và chuyển đổi sang HTTPS là đáng để làm, vì bất kỳ trang web hiện đại nào cũng sẽ làm như vậy.
+
+# PGP and GPG
+
+PGP là viết tắt của Pretty Good Privacy. Đây là phần mềm thực hiện mã hóa để mã hóa tệp, ký số điện tử và nhiều chức năng khác. GnuPG hoặc GPG là một bản thực hiện mở nguồn của tiêu chuẩn OpenPGP.
+
+GPG thường được sử dụng trong email để bảo vệ tính bảo mật của tin nhắn. Ngoài ra, nó còn có thể được sử dụng để ký một tin nhắn email và xác nhận tính toàn vẹn của nó.
+
+Dưới đây là một ví dụ về việc tạo khóa GPG. Bạn được hỏi về mục đích sử dụng gpg, liệu chỉ để ký hay cả ký và mã hóa. Bên cạnh việc chọn thuật toán mã hóa, chúng ta cần chọn ngày hết hạn cho khóa được tạo. Cuối cùng, chúng ta cung cấp một số thông tin về bản thân: tên, địa chỉ email và một lời bình luận thường về mục đích sử dụng khóa này.
+
+```
+gpg --full-gen-key
+gpg (GnuPG) 2.4.4; Copyright (C) 2024 g10 Code GmbH
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+   (1) RSA and RSA
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+   (9) ECC (sign and encrypt) *default*
+  (10) ECC (sign only)
+  (14) Existing key from card
+Your selection? 9
+Please select which elliptic curve you want:
+   (1) Curve 25519 *default*
+   (4) NIST P-384
+   (6) Brainpool P-256
+Your selection? 1
+Please specify how long the key should be valid.
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0) 
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: strategos
+Email address: strategos@tryhackme.thm
+[...]
+pub   ed25519 2024-08-29 [SC]
+      AB7E6AA87B6A8E0D159CA7FFE5E63DBD5F83D5ED
+uid                      Strategos <strategos@tryhackme.thm>
+sub   cv25519 2024-08-29 [E]
+```
+
+
 
 
 
