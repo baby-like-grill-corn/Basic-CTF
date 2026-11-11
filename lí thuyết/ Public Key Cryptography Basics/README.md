@@ -269,8 +269,17 @@ pub   ed25519 2024-08-29 [SC]
 uid                      Strategos <strategos@tryhackme.thm>
 sub   cv25519 2024-08-29 [E]
 ```
+Bạn có thể cần sử dụng GPG để giải mã các tập tin trong CTF. Với PGP/GPG, khóa riêng có thể được bảo vệ bằng mật khẩu tương tự như cách chúng ta bảo vệ khóa riêng SSH. Nếu khóa được bảo vệ bằng mật khẩu, bạn có thể thử bẻ khóa nó bằng John the Ripper và `gpg2john`. Khóa được cung cấp trong nhiệm vụ này không được bảo vệ bằng mật khẩu. Bạn có thể tìm thấy trang hướng dẫn sử dụng GPG trực tuyến 
 
+## Ví dụ thực tế﻿
 
+Giờ bạn đã có cặp khóa GPG, bạn có thể chia sẻ khóa công khai với những người trong danh bạ của mình. Bất cứ khi nào những người trong danh bạ muốn liên lạc một cách an toàn, họ sẽ mã hóa tin nhắn gửi cho bạn bằng khóa công khai của bạn. Để giải mã tin nhắn, bạn sẽ phải sử dụng khóa riêng tư của mình. Do tầm quan trọng của các khóa GPG, điều cần thiết là bạn phải giữ một bản sao lưu ở một vị trí an toàn.
+
+Giả sử bạn vừa mua một máy tính mới. Tất cả những gì bạn cần làm là nhập khóa của mình, và bạn có thể bắt đầu giải mã các tin nhắn đã nhận được trở lại:
+
+Bạn sẽ sử dụng `gpg --import backup.key`lệnh này để nhập khóa của mình từ tệp `backup.key`.
+Để giải mã tin nhắn của bạn, bạn cần thực hiện lệnh sau:`gpg --decrypt confidential_message.gpg`
+Bây giờ hãy thử trên máy tính trong phòng thí nghiệm. Bạn không cần tạo cặp khóa mới, vì khóa riêng đã được cung cấp sẵn. Chạy lệnh `cd ~/Public-Crypto-Basics/Task-7`để `ls`xem tệp khóa và tin nhắn đã mã hóa. Nhập khóa bằng lệnh `gpg --import`theo sau là tên tệp khóa. Sau đó giải mã tin nhắn bằng lệnh `gpg --decrypt`theo sau là tên tệp tin nhắn. GPG sẽ in văn bản đã giải mã ra cửa sổ terminal của bạn.
 
 
 
