@@ -1,4 +1,4 @@
-<img width="1140" height="70" alt="ee1310ecb1558e550a9bff3a53ece0ff" src="https://github.com/user-attachments/assets/58b4c9a3-3296-4b43-986e-1d6874bdabfc" /># Physical Security
+# Physical Security
 
 Một trong những nguyên tắc an ninh là "An ninh nhiều lớp". Do đó, chúng ta nên luôn suy nghĩ theo cách phân tầng an ninh. Một trong những lớp đầu tiên là an ninh vật lý.
 
