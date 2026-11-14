@@ -14,5 +14,9 @@ root@AttackBox# grub2-mkpasswd-pbkdf2
 Enter password: 
 Reenter password: 
 PBKDF2 hash of your password is grub.pbkdf2.sha512.10000.534B77859C13DCF094E90B926E26C586F5DC9D00687853487C4BB1500D57EC29E2D6D07A586262E093DCBDFF4B3552742A25700BAB6B76A8206B3BFCB273EEB4.4BA1447590EA8451CD224AA1C5F8623FE85D23F6D34E2026E3F08C5AA79282DB65B330BAB4944E9374EC51BF11EFF418EDA5D66FF4D7AAA86F662F793B92DA61
-        
 ```
+
+Điều quan trọng cần lưu ý là tính năng thêm mật khẩu cho GRUB không khả dụng đối với các hệ thống được triển khai bằng nhà cung cấp dịch vụ đám mây (chẳng hạn như hệ thống máy ảo Linux của chúng tôi).Việc sử dụng mật khẩu GRUB không có ý nghĩa gì vì bạn không có quyền truy cập vào thiết bị đầu cuối vật lý.
+
+Đảm bảo an ninh vật lý là điều bắt buộc vì kẻ tấn công có quyền truy cập vật lý rất dễ gây ra thiệt hại. Thêm mật khẩu cho GRUB là một biện pháp hợp lý để ngăn chặn người dùng có quyền truy cập vật lý vào bàn phím hệ thống truy cập vào máy. Tuy nhiên, chúng ta cần có kế hoạch trong trường hợp kẻ tấn công tìm cách đánh cắp ổ đĩa.
+
