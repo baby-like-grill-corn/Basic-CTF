@@ -9,5 +9,10 @@ Giả sử bạn đã thực hiện các biện pháp cần thiết để ngăn 
 Rõ ràng, chúng ta cần đảm bảo an ninh vật lý cho hệ thống máy tính của mình; tuy nhiên, trong trường hợp hiếm hoi an ninh xâm chúng ta cần cung cấp thêm các và firmware UEFI cho thêm mật khẩu này sẽ ngăn không cho người dùng không được phép khởi động hệ thống. Tuy nhiên, điều này chỉ có thể sử dụng cho các hệ thống cá nhân; việc sử dụng nó trên máy chủ sẽ không hợp lý vì điều này yêu cầu ai đó phải có mặt trực tiếp để cung cấp mật khẩu khởi động.
 
 Chúng ta có thể xem xét việc thêm mật khẩu GRUB tùy thuộc vào hệ thống Linux mà chúng ta muốn bảo vệ. Nhiều công cụ hỗ trợ việc này. Một công cụ là grub2-mkpasswd-pbkdf2, sẽ yêu cầu bạn nhập mật khẩu hai lần và tạo ra một mã băm cho bạn. Mã băm kết quả này cần được thêm vào tệp cấu hình phù hợp tùy theo phân phối Linux (ví dụ: Fedora và Ubuntu). Cấu hình này sẽ ngăn không cho người dùng không được phép đặt lại mật khẩu root của bạn. Nó sẽ yêu cầu người dùng phải cung cấp mật khẩu để truy cập các cấu hình khởi động nâng cao thông qua GRUB, bao gồm việc đăng nhập với quyền root.
-
-
+```
+root@AttackBox# grub2-mkpasswd-pbkdf2
+Enter password: 
+Reenter password: 
+PBKDF2 hash of your password is grub.pbkdf2.sha512.10000.534B77859C13DCF094E90B926E26C586F5DC9D00687853487C4BB1500D57EC29E2D6D07A586262E093DCBDFF4B3552742A25700BAB6B76A8206B3BFCB273EEB4.4BA1447590EA8451CD224AA1C5F8623FE85D23F6D34E2026E3F08C5AA79282DB65B330BAB4944E9374EC51BF11EFF418EDA5D66FF4D7AAA86F662F793B92DA61
+        
+```
