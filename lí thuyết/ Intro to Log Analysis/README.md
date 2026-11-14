@@ -115,6 +115,7 @@ cmnatic@thm cat access.log
 Using a threat intelligence feed like ThreatFox, we can search our log files for known malicious actors' presence.
 
 <img width="2564" height="1150" alt="c3ad6571c689577d907026d8a75d73c7" src="https://github.com/user-attachments/assets/35f74411-79d3-4c8e-878a-e180077a2a89" />
+
 ```
 cmnatic@thm grep "54.36.149.64" logfile.txt
 54.36.149.64
