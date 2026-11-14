@@ -1,4 +1,4 @@
-<img width="2564" height="1150" alt="c3ad6571c689577d907026d8a75d73c7" src="https://github.com/user-attachments/assets/aa5c195f-ac0c-4436-bef1-e96a00fb9505" /><img width="1999" height="1125" alt="caeace06b70e4c6920d32ae0bf22e8f4" src="https://github.com/user-attachments/assets/a35dd0b9-6f3f-4142-bb07-ef346f499647" /># Log Analysis Basics
+# Log Analysis Basics
 
 Among the various data sources collected and utilized by infrastructure systems, logs are pivotal in offering valuable insights into these systems' inner workings and interactions across the network. A log is a stream of time-sequenced messages that record occurring events. Log analysis is the process of making sense of the events captured in the logs to paint a clear picture of what has happened across the infrastructure.
 
